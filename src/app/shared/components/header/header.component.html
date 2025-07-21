@@ -1,0 +1,35 @@
+<header class="header">
+  <div class="header-container">
+    <div class="header-left">
+      <button class="menu-toggle" (click)="toggleMenu()">
+        <span></span>
+        <span></span>
+        <span></span>
+      </button>
+      
+      <a routerLink="/" class="logo">ZARA</a>
+      
+      <nav class="nav-menu" [class.active]="menuOpen">
+        <a routerLink="/products" routerLinkActive="active">Shop</a>
+        <a routerLink="/about" routerLinkActive="active">About Us</a>
+        <a routerLink="/products?category=women">Women</a>
+        <a routerLink="/products?category=men">Men</a>
+        <a routerLink="/products?category=jewelery">Jewelry</a>
+        <a routerLink="/products?category=electronics">Electronics</a>
+      </nav>
+    </div>
+
+    <div class="header-right">
+      <a routerLink="/login" class="icon-btn">
+        <i class="fas fa-user"></i>
+      </a>
+      
+      <a routerLink="/cart" class="icon-btn cart-btn">
+        <i class="fas fa-shopping-bag"></i>
+        <span class="cart-count" *ngIf="cartItemCount > 0">
+          {{ cartItemCount }}
+        </span>
+      </a>
+    </div>
+  </div>
+</header>
