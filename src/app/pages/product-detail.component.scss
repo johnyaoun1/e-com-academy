@@ -1,0 +1,30 @@
+.product-detail-page {
+  min-height: 100vh;
+  padding-top: 80px;
+
+  .container {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 2rem;
+  }
+
+  .product-content {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 4rem;
+    margin-bottom: 4rem;
+  }
+}
+
+@media (max-width: 768px) {
+  .product-detail-page {
+    .container {
+      padding: 1rem;
+    }
+
+    .product-content {
+      grid-template-columns: 1fr;
+      gap: 2rem;
+    }
+  }
+}

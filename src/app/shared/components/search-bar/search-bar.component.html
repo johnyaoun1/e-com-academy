@@ -1,0 +1,16 @@
+<div class="search-container">
+  <input
+    type="text"
+    [(ngModel)]="searchQuery"
+    (keyup.enter)="onSearch()"
+    placeholder="Search for products..."
+    class="search-input"
+    autofocus
+  />
+  <button (click)="onSearch()" class="search-btn">
+    <i class="fas fa-search"></i>
+  </button>
+  <button (click)="onClose()" class="close-btn">
+    <i class="fas fa-times"></i>
+  </button>
+</div>

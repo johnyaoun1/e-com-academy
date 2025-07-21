@@ -1,0 +1,101 @@
+<div class="admin-dashboard">
+  <div class="dashboard-header">
+    <h1>Admin Dashboard</h1>
+    <p>Welcome back! Here's what's happening with your store today.</p>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <i class="fas fa-box"></i>
+      <div class="stat-content">
+        <h3>{{ stats.totalProducts }}</h3>
+        <p>Total Products</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <i class="fas fa-tags"></i>
+      <div class="stat-content">
+        <h3>{{ stats.totalCategories }}</h3>
+        <p>Categories</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <i class="fas fa-shopping-cart"></i>
+      <div class="stat-content">
+        <h3>{{ stats.totalOrders }}</h3>
+        <p>Total Orders</p>
+      </div>
+    </div>
+
+    <div class="stat-card">
+      <i class="fas fa-dollar-sign"></i>
+      <div class="stat-content">
+        <h3>{{ stats.totalRevenue | currency:'USD':'symbol':'1.2-2' }}</h3>
+        <p>Total Revenue</p>
+      </div>
+    </div>
+  </div>
+
+  <div class="dashboard-sections">
+    <div class="section">
+      <div class="section-header">
+        <h2>Recent Products</h2>
+        <a routerLink="/admin/products" class="view-all">View All</a>
+      </div>
+      
+      <div class="products-table">
+        <table>
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Category</th>
+              <th>Price</th>
+              <th>Rating</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let product of recentProducts$ | async">
+              <td>
+                <div class="product-cell">
+                  <img [src]="product.image" [alt]="product.title">
+                  <span>{{ product.title | truncate:50 }}</span>
+                </div>
+              </td>
+              <td>{{ product.category | titlecase }}</td>
+              <td>{{ product.price | currencyFormat }}</td>
+              <td>
+                <div class="rating">
+                  <i class="fas fa-star"></i>
+                  {{ product.rating.rate }}
+                </div>
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="section">
+      <div class="section-header">
+        <h2>Quick Actions</h2>
+      </div>
+      
+      <div class="quick-actions">
+        <a routerLink="/admin/products" class="action-card">
+          <i class="fas fa-plus"></i>
+          <span>Add Product</span>
+        </a>
+        <a routerLink="/admin/users" class="action-card">
+          <i class="fas fa-users"></i>
+          <span>Manage Users</span>
+        </a>
+        <a routerLink="/admin/orders" class="action-card">
+          <i class="fas fa-list"></i>
+          <span>View Orders</span>
+        </a>
+      </div>
+    </div>
+  </div>
+</div>

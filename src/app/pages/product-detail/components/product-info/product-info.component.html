@@ -1,0 +1,58 @@
+<div class="product-info">
+  <h1>{{ product.title }}</h1>
+  
+  <div class="rating">
+    <div class="stars">
+      <i *ngFor="let star of [1,2,3,4,5]" 
+         class="fas fa-star" 
+         [class.filled]="star <= product.rating.rate"></i>
+    </div>
+    <span class="rating-text">
+      {{ product.rating.rate }} ({{ product.rating.count }} reviews)
+    </span>
+  </div>
+
+  <div class="price">{{ product.price | currencyFormat }}</div>
+
+  <div class="purchase-options">
+    <div class="quantity-selector">
+      <button (click)="updateQuantity(-1)">-</button>
+      <span>{{ quantity }}</span>
+      <button (click)="updateQuantity(1)">+</button>
+    </div>
+
+    <button class="add-to-cart" (click)="onAddToCart()">
+      <i class="fas fa-shopping-bag"></i> Add to Cart
+    </button>
+  </div>
+
+  <div class="product-tabs">
+    <div class="tab-headers">
+      <button 
+        [class.active]="activeTab === 'description'"
+        (click)="activeTab = 'description'">
+        Description
+      </button>
+      <button 
+        [class.active]="activeTab === 'details'"
+        (click)="activeTab = 'details'">
+        Details
+      </button>
+    </div>
+
+    <div class="tab-content">
+      <div *ngIf="activeTab === 'description'" class="description">
+        <p>{{ product.description }}</p>
+      </div>
+
+      <div *ngIf="activeTab === 'details'" class="details">
+        <ul>
+          <li><strong>Category:</strong> {{ product.category | titlecase }}</li>
+          <li><strong>Product ID:</strong> {{ product.id }}</li>
+          <li><strong>Average Rating:</strong> {{ product.rating.rate }}/5</li>
+          <li><strong>Total Reviews:</strong> {{ product.rating.count }}</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>

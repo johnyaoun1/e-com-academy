@@ -1,0 +1,111 @@
+.filter-sidebar {
+  width: 250px;
+  padding: 2rem;
+  border-right: 1px solid #eee;
+  min-height: calc(100vh - 140px);
+
+  .filter-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+
+    h3 {
+      font-size: 1.2rem;
+      font-weight: 500;
+    }
+
+    .clear-btn {
+      background: none;
+      border: none;
+      color: #666;
+      cursor: pointer;
+      font-size: 0.875rem;
+      text-decoration: underline;
+
+      &:hover {
+        color: #000;
+      }
+    }
+  }
+
+  .filter-section {
+    margin-bottom: 2rem;
+
+    h4 {
+      font-size: 1rem;
+      margin-bottom: 1rem;
+      font-weight: 500;
+    }
+  }
+
+  .filter-options {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  .filter-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.875rem;
+    color: #666;
+
+    &:hover {
+      color: #000;
+    }
+
+    input[type="radio"] {
+      margin-right: 0.5rem;
+      cursor: pointer;
+    }
+  }
+
+  .price-inputs {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+
+    input {
+      flex: 1;
+      padding: 0.5rem;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 0.875rem;
+
+      &:focus {
+        outline: none;
+        border-color: #000;
+      }
+    }
+  }
+
+  .price-display {
+    margin-top: 0.5rem;
+    font-size: 0.875rem;
+    color: #666;
+    text-align: center;
+  }
+}
+
+@media (max-width: 768px) {
+  .filter-sidebar {
+    position: fixed;
+    top: 60px;
+    left: -100%;
+    width: 80%;
+    max-width: 300px;
+    height: calc(100vh - 60px);
+    background: white;
+    z-index: 999;
+    box-shadow: 2px 0 10px rgba(0, 0, 0, 0.1);
+    transition: left 0.3s;
+    overflow-y: auto;
+
+    &.active {
+      left: 0;
+    }
+  }
+}
+

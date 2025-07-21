@@ -1,0 +1,131 @@
+<div class="auth-card">
+  <h2>Sign Up</h2>
+  <form [formGroup]="signupForm" (ngSubmit)="onSubmit()">
+    <div class="form-row">
+      <div class="form-group">
+        <input
+          type="text"
+          formControlName="firstname"
+          class="form-control"
+          placeholder="First Name"
+          [class.is-invalid]="signupForm.get('firstname')?.touched && signupForm.get('firstname')?.errors"
+        />
+        <div class="error-message" *ngIf="getFieldError('firstname')">
+          {{ getFieldError('firstname') }}
+        </div>
+      </div>
+      
+      <div class="form-group">
+        <input
+          type="text"
+          formControlName="lastname"
+          class="form-control"
+          placeholder="Last Name"
+          [class.is-invalid]="signupForm.get('lastname')?.touched && signupForm.get('lastname')?.errors"
+        />
+        <div class="error-message" *ngIf="getFieldError('lastname')">
+          {{ getFieldError('lastname') }}
+        </div>
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="email"
+        formControlName="email"
+        class="form-control"
+        placeholder="Email"
+        [class.is-invalid]="signupForm.get('email')?.touched && signupForm.get('email')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('email')">
+        {{ getFieldError('email') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="text"
+        formControlName="username"
+        class="form-control"
+        placeholder="Username"
+        [class.is-invalid]="signupForm.get('username')?.touched && signupForm.get('username')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('username')">
+        {{ getFieldError('username') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="password"
+        formControlName="password"
+        class="form-control"
+        placeholder="Password (min 6 characters)"
+        [class.is-invalid]="signupForm.get('password')?.touched && signupForm.get('password')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('password')">
+        {{ getFieldError('password') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="password"
+        formControlName="confirmPassword"
+        class="form-control"
+        placeholder="Confirm Password"
+        [class.is-invalid]="signupForm.get('confirmPassword')?.touched && signupForm.get('confirmPassword')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('confirmPassword')">
+        {{ getFieldError('confirmPassword') }}
+      </div>
+    </div>
+
+    <div class="form-group">
+      <input
+        type="tel"
+        formControlName="phone"
+        class="form-control"
+        placeholder="Phone Number"
+        [class.is-invalid]="signupForm.get('phone')?.touched && signupForm.get('phone')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('phone')">
+        {{ getFieldError('phone') }}
+      </div>
+    </div>
+
+    <!-- Account Type Selector -->
+    <div class="form-group">
+      <label for="role">Account Type</label>
+      <select formControlName="role" class="form-control" id="role">
+        <option value="user">User Account</option>
+        <option value="admin">Admin Account</option>
+      </select>
+    </div>
+
+    <!-- Admin Code Field - only shows when admin is selected -->
+    <div class="form-group" *ngIf="signupForm.get('role')?.value === 'admin'">
+      <input
+        type="password"
+        formControlName="adminCode"
+        class="form-control"
+        placeholder="Enter admin code"
+        [class.is-invalid]="signupForm.get('adminCode')?.touched && signupForm.get('adminCode')?.errors"
+      />
+      <div class="error-message" *ngIf="getFieldError('adminCode')">
+        {{ getFieldError('adminCode') }}
+      </div>
+    </div>
+
+    <div class="error-message" *ngIf="error">{{ error }}</div>
+
+    <button type="submit" class="btn btn-primary" [disabled]="loading">
+      <span *ngIf="loading" class="spinner-border spinner-border-sm mr-2"></span>
+      Sign Up
+    </button>
+  </form>
+
+  <div class="auth-footer">
+    <p>Already have an account? <a (click)="onSwitchToLogin()">Login</a></p>
+  </div>
+</div>

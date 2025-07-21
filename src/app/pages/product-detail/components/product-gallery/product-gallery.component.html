@@ -1,0 +1,15 @@
+<div class="product-gallery">
+  <div class="main-image">
+    <img [src]="images[selectedImage]" alt="Product image">
+  </div>
+  
+  <div class="thumbnail-list" *ngIf="images.length > 1">
+    <div 
+      class="thumbnail" 
+      *ngFor="let image of images; let i = index"
+      [class.active]="i === selectedImage"
+      (click)="selectImage(i)">
+      <img [src]="image" alt="Product thumbnail">
+    </div>
+  </div>
+</div>

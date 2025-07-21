@@ -1,0 +1,28 @@
+<div class="product-list-page">
+  <div class="page-header">
+    <h1>{{ searchQuery ? 'Search Results' : (selectedCategory || 'All Products') }}</h1>
+    <button class="filter-toggle" (click)="toggleFilters()">
+      <i class="fas fa-filter"></i> Filters
+    </button>
+  </div>
+
+  <div class="content">
+    <app-filter-sidebar 
+      [categories]="categories$ | async"
+      [selectedCategory]="selectedCategory"
+      [class.active]="showFilters"
+      (filterChange)="onFilterChange($event)">
+    </app-filter-sidebar>
+
+    <div class="products-section">
+      <div class="loading" *ngIf="loading">
+        <app-loading-spinner></app-loading-spinner>
+      </div>
+
+      <app-product-grid 
+        *ngIf="!loading"
+        [products]="products$ | async">
+      </app-product-grid>
+    </div>
+  </div>
+</div>

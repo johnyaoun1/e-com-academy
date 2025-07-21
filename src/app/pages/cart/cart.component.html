@@ -1,0 +1,67 @@
+<div class="cart-page">
+  <div class="container">
+    <h1>Shopping Cart</h1>
+
+    <div class="cart-content" *ngIf="cartItems$ | async as cartItems">
+      <div *ngIf="cartItems.length > 0" class="cart-grid">
+        <div class="cart-items">
+          <div class="cart-item" *ngFor="let item of cartItems">
+            <div class="item-image">
+              <img [src]="item.product.image" [alt]="item.product.title">
+            </div>
+            
+            <div class="item-details">
+              <h3>{{ item.product.title }}</h3>
+              <p class="item-price">{{ item.product.price | currencyFormat }}</p>
+            </div>
+
+            <div class="item-quantity">
+              <button (click)="updateQuantity(item.product.id, item.quantity - 1)">-</button>
+              <span>{{ item.quantity }}</span>
+              <button (click)="updateQuantity(item.product.id, item.quantity + 1)">+</button>
+            </div>
+
+            <div class="item-total">
+              {{ (item.product.price * item.quantity) | currencyFormat }}
+            </div>
+
+            <button class="remove-btn" (click)="removeItem(item.product.id)">
+              <i class="fas fa-times"></i>
+            </button>
+          </div>
+        </div>
+
+        <div class="cart-summary">
+          <h2>Order Summary</h2>
+          <div class="summary-row">
+            <span>Subtotal</span>
+            <span>{{ cartTotal | currencyFormat }}</span>
+          </div>
+          <div class="summary-row">
+            <span>Shipping</span>
+            <span>Free</span>
+          </div>
+          <div class="summary-row total">
+            <span>Total</span>
+            <span>{{ cartTotal | currencyFormat }}</span>
+          </div>
+          
+          <button class="checkout-btn" (click)="proceedToCheckout()">
+            Proceed to Checkout
+          </button>
+          
+          <button class="continue-btn" (click)="continueShopping()">
+            Continue Shopping
+          </button>
+        </div>
+      </div>
+
+      <div *ngIf="cartItems.length === 0" class="empty-cart">
+        <i class="fas fa-shopping-bag"></i>
+        <h2>Your cart is empty</h2>
+        <p>Add some products to your cart to see them here.</p>
+        <button (click)="continueShopping()">Start Shopping</button>
+      </div>
+    </div>
+  </div>
+</div>

@@ -1,0 +1,14 @@
+<div class="product-detail-page">
+  <div class="container" *ngIf="product$ | async as product">
+    <div class="product-content">
+      <app-product-gallery [images]="[product.image]"></app-product-gallery>
+      <app-product-info 
+        [product]="product"
+        (quantityChange)="onQuantityChange($event)"
+        (addToCart)="addToCart(product)">
+      </app-product-info>
+    </div>
+
+    <app-similar-products [products]="similarProducts$ | async"></app-similar-products>
+  </div>
+</div>

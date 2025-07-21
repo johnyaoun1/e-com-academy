@@ -1,0 +1,380 @@
+<div class="profile-page">
+  <div class="container">
+    <div class="profile-header">
+      <div class="user-info">
+        <div class="avatar">
+          <img #avatarImg [src]="user?.avatar || getDefaultAvatar()" [alt]="user?.firstName || 'User'" (error)="onAvatarError(avatarImg)">
+          <button *ngIf="isEditing" class="avatar-edit-btn" (click)="changeAvatar()">
+            <i class="fas fa-camera"></i>
+          </button>
+          <!-- Profile picture overlay for non-editing mode -->
+          <div class="picture-overlay" *ngIf="!isEditing" (click)="triggerFileInput()">
+            <i class="fas fa-camera"></i>
+            <span>Change Photo</span>
+          </div>
+        </div>
+        <div class="user-details">
+          <h1>{{ user?.firstName }} {{ user?.lastName }}</h1>
+          <p class="email">{{ user?.email }}</p>
+          <span class="member-badge">Member since {{ user?.createdAt | date:'MMMM yyyy' }}</span>
+        </div>
+      </div>
+      
+      <!-- Hidden file input -->
+      <input 
+        #fileInput
+        type="file" 
+        accept="image/*" 
+        (change)="onFileSelected($event)"
+        style="display: none;"
+      />
+    </div>
+
+    <div class="profile-content">
+      <div class="profile-sidebar">
+        <nav class="profile-nav">
+          <a [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
+            <i class="fas fa-user"></i> Profile Details
+          </a>
+          <a [class.active]="activeTab === 'orders'" (click)="setActiveTab('orders')">
+            <i class="fas fa-shopping-bag"></i> My Orders
+          </a>
+          <a [class.active]="activeTab === 'payment'" (click)="setActiveTab('payment')">
+            <i class="fas fa-credit-card"></i> Payment Methods
+          </a>
+          <a [class.active]="activeTab === 'address'" (click)="setActiveTab('address')">
+            <i class="fas fa-map-marker-alt"></i> Addresses
+          </a>
+          <a [class.active]="activeTab === 'settings'" (click)="setActiveTab('settings')">
+            <i class="fas fa-cog"></i> Settings
+          </a>
+        </nav>
+      </div>
+
+      <div class="profile-main">
+        <!-- Success Message -->
+        <div *ngIf="successMessage" class="toast toast-success">
+          <i class="fas fa-check-circle"></i>
+          {{ successMessage }}
+        </div>
+
+        <!-- Loading State -->
+        <div *ngIf="loading" class="loading-container">
+          <div class="spinner"></div>
+          <p>Loading...</p>
+        </div>
+
+        <!-- Error State -->
+        <div *ngIf="error" class="error-message">
+          <i class="fas fa-exclamation-triangle"></i>
+          {{ error }}
+          <button (click)="retry()">Retry</button>
+        </div>
+
+        <!-- Profile Details Tab -->
+        <div *ngIf="activeTab === 'details' && !loading" class="profile-section">
+          <div class="section-header">
+            <h2>Profile Details</h2>
+            <div class="section-actions">
+              <button *ngIf="!isEditing" class="edit-btn" (click)="toggleEdit()">
+                <i class="fas fa-edit"></i> Edit Profile
+              </button>
+              <button *ngIf="isEditing" class="cancel-btn" (click)="cancelEdit()">
+                <i class="fas fa-times"></i> Cancel
+              </button>
+            </div>
+          </div>
+
+          <form [formGroup]="profileForm" (ngSubmit)="saveProfile()" class="profile-form">
+            <div class="form-section">
+              <h3>Personal Information</h3>
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="firstName">First Name *</label>
+                  <input 
+                    id="firstName"
+                    type="text" 
+                    formControlName="firstName" 
+                    [readonly]="!isEditing"
+                    [class.error]="getFieldError('firstName')"
+                    class="form-control"
+                  />
+                  <span class="error-text" *ngIf="getFieldError('firstName')">
+                    {{ getFieldError('firstName') }}
+                  </span>
+                </div>
+                <div class="form-group">
+                  <label for="lastName">Last Name *</label>
+                  <input 
+                    id="lastName"
+                    type="text" 
+                    formControlName="lastName" 
+                    [readonly]="!isEditing"
+                    [class.error]="getFieldError('lastName')"
+                    class="form-control"
+                  />
+                  <span class="error-text" *ngIf="getFieldError('lastName')">
+                    {{ getFieldError('lastName') }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-row">
+                <div class="form-group">
+                  <label for="email">Email *</label>
+                  <input 
+                    id="email"
+                    type="email" 
+                    formControlName="email" 
+                    [readonly]="!isEditing"
+                    [class.error]="getFieldError('email')"
+                    class="form-control"
+                  />
+                  <span class="error-text" *ngIf="getFieldError('email')">
+                    {{ getFieldError('email') }}
+                  </span>
+                </div>
+                <div class="form-group">
+                  <label for="phone">Phone</label>
+                  <input 
+                    id="phone"
+                    type="tel" 
+                    formControlName="phone" 
+                    [readonly]="!isEditing"
+                    [class.error]="getFieldError('phone')"
+                    class="form-control"
+                  />
+                  <span class="error-text" *ngIf="getFieldError('phone')">
+                    {{ getFieldError('phone') }}
+                  </span>
+                </div>
+              </div>
+
+              <div class="form-group">
+                <label for="username">Username *</label>
+                <input 
+                  id="username"
+                  type="text" 
+                  formControlName="username" 
+                  readonly
+                  class="form-control"
+                  title="Username cannot be changed"
+                />
+                <small class="help-text">Username cannot be changed</small>
+              </div>
+            </div>
+
+            <div *ngIf="isEditing" class="form-actions">
+              <button type="button" class="btn btn-secondary" (click)="cancelEdit()">
+                Cancel
+              </button>
+              <button 
+                type="submit" 
+                [disabled]="profileForm.invalid || saving"
+                class="btn btn-primary">
+                <i class="fas fa-spinner fa-spin" *ngIf="saving"></i>
+                <i class="fas fa-save" *ngIf="!saving"></i>
+                {{ saving ? 'Saving...' : 'Save Changes' }}
+              </button>
+            </div>
+          </form>
+        </div>
+
+        <!-- Orders Tab -->
+        <div *ngIf="activeTab === 'orders' && !loading" class="profile-section">
+          <div class="section-header">
+            <h2>My Orders</h2>
+            <div class="orders-filter">
+              <select [(ngModel)]="orderFilter" (change)="filterOrders()">
+                <option value="all">All Orders</option>
+                <option value="pending">Pending</option>
+                <option value="processing">Processing</option>
+                <option value="shipped">Shipped</option>
+                <option value="delivered">Delivered</option>
+                <option value="cancelled">Cancelled</option>
+              </select>
+            </div>
+          </div>
+          
+          <div class="orders-list" *ngIf="filteredOrders.length > 0">
+            <div *ngFor="let order of filteredOrders" class="order-card">
+              <div class="order-header">
+                <div class="order-info">
+                  <span class="order-number">#{{ order.id }}</span>
+                  <span class="order-date">{{ order.date | date:'MMM d, yyyy' }}</span>
+                </div>
+                <span class="order-status" [class]="order.status">{{ order.status | titlecase }}</span>
+              </div>
+              <div class="order-items">
+                <div *ngFor="let item of order.items" class="order-item">
+                  <img [src]="item.image" [alt]="item.name">
+                  <div class="item-details">
+                    <h4>{{ item.name }}</h4>
+                    <p>Quantity: {{ item.quantity }}</p>
+                  </div>
+                  <span class="item-price">{{ item.price | currency }}</span>
+                </div>
+              </div>
+              <div class="order-footer">
+                <span class="order-total">Total: {{ order.total | currency }}</span>
+                <div class="order-actions">
+                  <button class="btn btn-outline" (click)="viewOrder(order.id)">View Details</button>
+                  <button *ngIf="order.status === 'delivered'" class="btn btn-primary" (click)="reorder(order.id)">
+                    Reorder
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="filteredOrders.length === 0" class="empty-state">
+            <i class="fas fa-shopping-bag"></i>
+            <h3>No orders found</h3>
+            <p>{{ orderFilter === 'all' ? 'You haven\'t placed any orders yet' : 'No orders match the selected filter' }}</p>
+            <button class="btn btn-primary" (click)="goToShop()">Start Shopping</button>
+          </div>
+        </div>
+
+        <!-- Payment Methods Tab -->
+        <div *ngIf="activeTab === 'payment' && !loading" class="profile-section">
+          <div class="section-header">
+            <h2>Payment Methods</h2>
+            <button class="add-btn" (click)="addPaymentMethod()">
+              <i class="fas fa-plus"></i> Add Payment Method
+            </button>
+          </div>
+          
+          <div class="payment-methods" *ngIf="paymentMethods.length > 0">
+            <div *ngFor="let payment of paymentMethods" class="payment-card" [class.default]="payment.isDefault">
+              <div class="card-info">
+                <div class="card-type">
+                  <i [class]="getCardIcon(payment.type)"></i>
+                  <span>{{ payment.type | titlecase }}</span>
+                  <span *ngIf="payment.isDefault" class="default-badge">Default</span>
+                </div>
+                <div class="card-number">**** **** **** {{ payment.lastFour }}</div>
+                <div class="card-expiry">Expires {{ payment.expiryMonth }}/{{ payment.expiryYear }}</div>
+                <div class="card-holder">{{ payment.holderName }}</div>
+              </div>
+              <div class="card-actions">
+                <button *ngIf="!payment.isDefault" class="btn btn-sm" (click)="setDefaultPayment(payment.id)">
+                  Set as Default
+                </button>
+                <button class="btn btn-sm btn-outline" (click)="editPaymentMethod(payment.id)">
+                  Edit
+                </button>
+                <button class="btn btn-sm btn-danger" (click)="removePaymentMethod(payment.id)">
+                  Remove
+                </button>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="paymentMethods.length === 0" class="empty-state">
+            <i class="fas fa-credit-card"></i>
+            <h3>No payment methods</h3>
+            <p>Add a payment method to make checkout faster</p>
+            <button class="btn btn-primary" (click)="addPaymentMethod()">Add Payment Method</button>
+          </div>
+        </div>
+
+        <!-- Address Tab -->
+        <div *ngIf="activeTab === 'address' && !loading" class="profile-section">
+          <div class="section-header">
+            <h2>Shipping Addresses</h2>
+            <button class="add-btn" (click)="addAddress()">
+              <i class="fas fa-plus"></i> Add Address
+            </button>
+          </div>
+          
+          <div class="addresses-list" *ngIf="addresses.length > 0">
+            <div *ngFor="let address of addresses" class="address-card" [class.default]="address.isDefault">
+              <div class="address-info">
+                <h4>{{ address.label }}</h4>
+                <p>{{ address.fullName }}</p>
+                <p>{{ address.street }}</p>
+                <p>{{ address.city }}, {{ address.state }} {{ address.zipCode }}</p>
+                <p>{{ address.country }}</p>
+                <span *ngIf="address.isDefault" class="default-badge">Default Address</span>
+              </div>
+              <div class="address-actions">
+                <button *ngIf="!address.isDefault" class="btn btn-sm" (click)="setDefaultAddress(address.id)">
+                  Set as Default
+                </button>
+                <button class="btn btn-sm btn-outline" (click)="editAddress(address.id)">Edit</button>
+                <button class="btn btn-sm btn-danger" (click)="removeAddress(address.id)">Remove</button>
+              </div>
+            </div>
+          </div>
+          
+          <div *ngIf="addresses.length === 0" class="empty-state">
+            <i class="fas fa-map-marker-alt"></i>
+            <h3>No addresses saved</h3>
+            <p>Add a shipping address for faster checkout</p>
+            <button class="btn btn-primary" (click)="addAddress()">Add Address</button>
+          </div>
+        </div>
+
+        <!-- Settings Tab -->
+        <div *ngIf="activeTab === 'settings' && !loading" class="profile-section">
+          <div class="section-header">
+            <h2>Account Settings</h2>
+          </div>
+          
+          <div class="settings-content">
+            <div class="settings-group">
+              <h3>Notifications</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>Email Notifications</h4>
+                  <p>Receive order updates and promotional emails</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="settings.emailNotifications" (change)="updateSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>SMS Notifications</h4>
+                  <p>Receive order updates via SMS</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="settings.smsNotifications" (change)="updateSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <h3>Privacy</h3>
+              <div class="setting-item">
+                <div class="setting-info">
+                  <h4>Marketing Communications</h4>
+                  <p>Receive promotional offers and news</p>
+                </div>
+                <label class="switch">
+                  <input type="checkbox" [(ngModel)]="settings.marketing" (change)="updateSettings()">
+                  <span class="slider"></span>
+                </label>
+              </div>
+            </div>
+
+            <div class="settings-group">
+              <h3>Account Actions</h3>
+              <div class="danger-zone">
+                <h4>Danger Zone</h4>
+                <button class="btn btn-secondary" (click)="changePassword()">
+                  <i class="fas fa-key"></i> Change Password
+                </button>
+                <button class="btn btn-danger" (click)="deleteAccount()">
+                  <i class="fas fa-trash"></i> Delete Account
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

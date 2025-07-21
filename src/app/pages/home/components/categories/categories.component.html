@@ -1,0 +1,16 @@
+<section class="categories">
+  <div class="container">
+    <h2>Shop by Category</h2>
+    <div class="categories-grid">
+      <div 
+        class="category-card" 
+        *ngFor="let category of categories"
+        (click)="navigateToCategory(category)">
+        <div class="category-image">
+          <img [src]="categoryImages[category]" [alt]="category">
+        </div>
+        <h3>{{ category | titlecase }}</h3>
+      </div>
+    </div>
+  </div>
+</section>

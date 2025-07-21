@@ -1,0 +1,16 @@
+<div class="product-grid">
+  <div class="results-info" *ngIf="products">
+    <p>{{ products.length }} Products</p>
+  </div>
+  
+  <div class="grid" *ngIf="products && products.length > 0">
+    <app-product-card 
+      *ngFor="let product of products" 
+      [product]="product">
+    </app-product-card>
+  </div>
+
+  <div class="no-results" *ngIf="products && products.length === 0">
+    <p>No products found</p>
+  </div>
+</div>
