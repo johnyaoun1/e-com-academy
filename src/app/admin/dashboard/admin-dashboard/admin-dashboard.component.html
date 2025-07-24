@@ -1,100 +1,128 @@
 <div class="admin-dashboard">
+  <!-- Header Section -->
   <div class="dashboard-header">
-    <h1>Admin Dashboard</h1>
-    <p>Welcome back! Here's what's happening with your store today.</p>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-card">
-      <i class="fas fa-box"></i>
-      <div class="stat-content">
-        <h3>{{ stats.totalProducts }}</h3>
-        <p>Total Products</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <i class="fas fa-tags"></i>
-      <div class="stat-content">
-        <h3>{{ stats.totalCategories }}</h3>
-        <p>Categories</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <i class="fas fa-shopping-cart"></i>
-      <div class="stat-content">
-        <h3>{{ stats.totalOrders }}</h3>
-        <p>Total Orders</p>
-      </div>
-    </div>
-
-    <div class="stat-card">
-      <i class="fas fa-dollar-sign"></i>
-      <div class="stat-content">
-        <h3>{{ stats.totalRevenue | currency:'USD':'symbol':'1.2-2' }}</h3>
-        <p>Total Revenue</p>
-      </div>
+    <div class="container">
+      <h1 class="dashboard-title">Admin Dashboard</h1>
+      <p class="dashboard-subtitle">Manage your e-commerce store efficiently</p>
     </div>
   </div>
 
-  <div class="dashboard-sections">
-    <div class="section">
-      <div class="section-header">
-        <h2>Recent Products</h2>
-        <a routerLink="/admin/products" class="view-all">View All</a>
-      </div>
-      
-      <div class="products-table">
-        <table>
-          <thead>
-            <tr>
-              <th>Product</th>
-              <th>Category</th>
-              <th>Price</th>
-              <th>Rating</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr *ngFor="let product of recentProducts$ | async">
-              <td>
-                <div class="product-cell">
-                  <img [src]="product.image" [alt]="product.title">
-                  <span>{{ product.title | truncate:50 }}</span>
-                </div>
-              </td>
-              <td>{{ product.category | titlecase }}</td>
-              <td>{{ product.price | currencyFormat }}</td>
-              <td>
-                <div class="rating">
-                  <i class="fas fa-star"></i>
-                  {{ product.rating.rate }}
-                </div>
-              </td>
-            </tr>
-          </tbody>
-        </table>
+  <div class="container">
+    <!-- Stats Section -->
+    <div class="stats-section">
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="icon-products"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ stats.totalProducts }}</h3>
+            <p class="stat-label">Total Products</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="icon-categories"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ stats.totalCategories }}</h3>
+            <p class="stat-label">Categories</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="icon-orders"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">{{ stats.totalOrders }}</h3>
+            <p class="stat-label">Total Orders</p>
+          </div>
+        </div>
+        
+        <div class="stat-card">
+          <div class="stat-icon">
+            <i class="icon-revenue"></i>
+          </div>
+          <div class="stat-content">
+            <h3 class="stat-number">${{ stats.totalRevenue.toFixed(2) }}</h3>
+            <p class="stat-label">Total Revenue</p>
+          </div>
+        </div>
       </div>
     </div>
 
-    <div class="section">
+    <!-- Products Management Section -->
+    <div class="management-section">
       <div class="section-header">
-        <h2>Quick Actions</h2>
+        <h2 class="section-title">Product Management</h2>
+        <div class="section-actions">
+          <button class="btn btn-secondary" (click)="exportProducts()">Export CSV</button>
+          <button class="btn btn-primary">Add Product</button>
+        </div>
       </div>
       
-      <div class="quick-actions">
-        <a routerLink="/admin/products" class="action-card">
-          <i class="fas fa-plus"></i>
-          <span>Add Product</span>
-        </a>
-        <a routerLink="/admin/users" class="action-card">
-          <i class="fas fa-users"></i>
-          <span>Manage Users</span>
-        </a>
-        <a routerLink="/admin/orders" class="action-card">
-          <i class="fas fa-list"></i>
-          <span>View Orders</span>
-        </a>
+      <div class="grid-container">
+        <ag-grid-angular
+          style="width: 100%; height: 400px;"
+          class="ag-theme-alpine grid-responsive"
+          [columnDefs]="productColumnDefs"
+          [rowData]="products"
+          [defaultColDef]="defaultColDef"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          [rowSelection]="'multiple'"
+          (gridReady)="onProductGridReady($event)">
+        </ag-grid-angular>
+      </div>
+    </div>
+
+    <!-- Orders Management Section -->
+    <div class="management-section">
+      <div class="section-header">
+        <h2 class="section-title">Recent Orders</h2>
+        <div class="section-actions">
+          <button class="btn btn-secondary">Export Orders</button>
+          <button class="btn btn-primary">View All Orders</button>
+        </div>
+      </div>
+      
+      <div class="grid-container">
+        <ag-grid-angular
+          style="width: 100%; height: 400px;"
+          class="ag-theme-alpine grid-responsive"
+          [columnDefs]="orderColumnDefs"
+          [rowData]="orders"
+          [defaultColDef]="defaultColDef"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          (gridReady)="onOrderGridReady($event)">
+        </ag-grid-angular>
+      </div>
+    </div>
+
+    <!-- Customers Management Section -->
+    <div class="management-section">
+      <div class="section-header">
+        <h2 class="section-title">Customer Management</h2>
+        <div class="section-actions">
+          <button class="btn btn-secondary">Export Customers</button>
+          <button class="btn btn-primary">Add Customer</button>
+        </div>
+      </div>
+      
+      <div class="grid-container">
+        <ag-grid-angular
+          style="width: 100%; height: 400px;"
+          class="ag-theme-alpine grid-responsive"
+          [columnDefs]="customerColumnDefs"
+          [rowData]="customers"
+          [defaultColDef]="defaultColDef"
+          [pagination]="true"
+          [paginationPageSize]="10"
+          (gridReady)="onCustomerGridReady($event)">
+        </ag-grid-angular>
       </div>
     </div>
   </div>
