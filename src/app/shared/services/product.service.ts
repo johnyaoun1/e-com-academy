@@ -1,5 +1,5 @@
 import { Injectable } from '@angular/core';
-import { HttpClient } from '@angular/common/http';
+import { HttpClient, HttpHeaders } from '@angular/common/http';
 import { Observable, BehaviorSubject } from 'rxjs';
 import { map, tap } from 'rxjs/operators';
 
@@ -20,7 +20,8 @@ export interface Product {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'https://fakestoreapi.com';
+  private apiUrl = 'https://fakestoreapi.com'; // ✅ Working API
+  
   private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();
 
@@ -28,7 +29,10 @@ export class ProductService {
 
   getAllProducts(): Observable<Product[]> {
     return this.http.get<Product[]>(`${this.apiUrl}/products`).pipe(
-      tap(products => this.productsSubject.next(products))
+      tap(products => {
+        console.log('✅ Products loaded from FakeStore:', products.length);
+        this.productsSubject.next(products);
+      })
     );
   }
 
@@ -55,7 +59,6 @@ export class ProductService {
     );
   }
 
-  // Add this missing method
   getSimilarProducts(product: Product): Observable<Product[]> {
     return this.getProductsByCategory(product.category).pipe(
       map(products => products.filter(p => p.id !== product.id).slice(0, 4))
