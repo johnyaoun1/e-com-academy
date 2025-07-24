@@ -6,14 +6,18 @@ import { AdminProductsComponent } from './products/admin-products/admin-products
 import { AdminUsersComponent } from './users/admin-users/admin-users.component';
 import { SharedModule } from '../shared/shared.module';
 import { AuthGuard } from '../auth/guards/auth.guard';
+import { AgGridModule } from 'ag-grid-angular';
+
 
 @NgModule({
   declarations: [
     AdminDashboardComponent,
-    AdminProductsComponent
+    AdminProductsComponent,
+
   ],
   imports: [
     CommonModule,
+    AgGridModule,
     SharedModule,
     AdminUsersComponent,
     RouterModule.forChild([
