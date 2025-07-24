@@ -1,0 +1,250 @@
+<div class="contact-page">
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container">
+      <div class="hero-content">
+        <h1 class="hero-title">Contact InMind</h1>
+        <p class="hero-subtitle">
+          We'd love to hear from you! Get in touch with our team for any questions, 
+          support, or feedback. We're here to help make your shopping experience exceptional.
+        </p>
+        <div class="hero-stats">
+          <div class="stat">
+            <h3>&lt;2h</h3>
+            <p>Response Time</p>
+          </div>
+          <div class="stat">
+            <h3>24/7</h3>
+            <p>Support</p>
+          </div>
+          <div class="stat">
+            <h3>98%</h3>
+            <p>Satisfaction</p>
+          </div>
+          <div class="stat">
+            <h3>5★</h3>
+            <p>Rating</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Form Section -->
+  <section class="contact-form-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Send Us a Message</h2>
+        <p>Fill out the form below and we'll get back to you as soon as possible</p>
+      </div>
+      
+      <div class="contact-content">
+        <div class="contact-form">
+          <form [formGroup]="contactForm" (ngSubmit)="onSubmit()" method="POST" class="form">
+            <div class="form-row">
+              <div class="form-group">
+                <label for="firstName">First Name *</label>
+                <input 
+                  type="text" 
+                  id="firstName" 
+                  name="firstName"
+                  formControlName="firstName"
+                  class="form-control"
+                  [class.error]="isFieldInvalid('firstName')"
+                  placeholder="Enter your first name">
+                <div class="error-message" *ngIf="isFieldInvalid('firstName')">
+                  {{getFieldError('firstName')}}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="lastName">Last Name *</label>
+                <input 
+                  type="text" 
+                  id="lastName" 
+                  name="lastName"
+                  formControlName="lastName"
+                  class="form-control"
+                  [class.error]="isFieldInvalid('lastName')"
+                  placeholder="Enter your last name">
+                <div class="error-message" *ngIf="isFieldInvalid('lastName')">
+                  {{getFieldError('lastName')}}
+                </div>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label for="email">Email Address *</label>
+                <input 
+                  type="email" 
+                  id="email" 
+                  name="email"
+                  formControlName="email"
+                  class="form-control"
+                  [class.error]="isFieldInvalid('email')"
+                  placeholder="Enter your email address">
+                <div class="error-message" *ngIf="isFieldInvalid('email')">
+                  {{getFieldError('email')}}
+                </div>
+              </div>
+              <div class="form-group">
+                <label for="phone">Phone Number</label>
+                <input 
+                  type="tel" 
+                  id="phone" 
+                  name="phone"
+                  formControlName="phone"
+                  class="form-control"
+                  placeholder="Enter your phone number">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="subject">Subject *</label>
+              <select 
+                id="subject" 
+                name="subject"
+                formControlName="subject"
+                class="form-control"
+                [class.error]="isFieldInvalid('subject')">
+                <option value="">Select a subject</option>
+                <option value="general">General Inquiry</option>
+                <option value="support">Customer Support</option>
+                <option value="order">Order Issue</option>
+                <option value="return">Return/Refund</option>
+                <option value="partnership">Partnership</option>
+                <option value="feedback">Feedback</option>
+              </select>
+              <div class="error-message" *ngIf="isFieldInvalid('subject')">
+                {{getFieldError('subject')}}
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="message">Message *</label>
+              <textarea 
+                id="message" 
+                name="message"
+                formControlName="message"
+                class="form-control"
+                [class.error]="isFieldInvalid('message')"
+                rows="6"
+                placeholder="Tell us how we can help you..."></textarea>
+              <div class="error-message" *ngIf="isFieldInvalid('message')">
+                {{getFieldError('message')}}
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button 
+                type="submit" 
+                class="btn btn-primary"
+                [disabled]="loading || contactForm.invalid">
+                <span *ngIf="loading">Sending...</span>
+                <span *ngIf="!loading">Send Message</span>
+              </button>
+            </div>
+          </form>
+
+          <!-- Success Message -->
+          <div class="success-message" *ngIf="showSuccess">
+            <div class="success-icon">✓</div>
+            <h3>Message Sent Successfully!</h3>
+            <p>Thank you for contacting us. We'll get back to you within 24 hours.</p>
+          </div>
+
+          <!-- Error Message -->
+          <div class="error-alert" *ngIf="submitError">
+            <p>{{submitError}}</p>
+          </div>
+        </div>
+
+        <div class="contact-info">
+          <div class="info-card">
+            <div class="info-icon">
+              <i class="icon-location"></i>
+            </div>
+            <h4>Visit Our Store</h4>
+            <p>123 Commerce Street<br>Business District<br>New York, NY 10001</p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">
+              <i class="icon-phone"></i>
+            </div>
+            <h4>Call Us</h4>
+            <p>
+              <strong>Customer Service:</strong><br>
+              +1 (555) 123-4567<br><br>
+              <strong>Business Hours:</strong><br>
+              Mon-Fri: 9AM - 6PM EST
+            </p>
+          </div>
+
+          <div class="info-card">
+            <div class="info-icon">
+              <i class="icon-email"></i>
+            </div>
+            <h4>Email Us</h4>
+            <p>
+              <strong>General:</strong> info&#64;inmind.com<br>
+              <strong>Support:</strong> support&#64;inmind.com<br>
+              <strong>Sales:</strong> sales&#64;inmind.com
+            </p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- FAQ Section -->
+  <section class="faq-section">
+    <div class="container">
+      <div class="section-header">
+        <h2>Frequently Asked Questions</h2>
+        <p>Quick answers to common questions</p>
+      </div>
+      
+      <div class="faq-grid">
+        <div class="faq-item">
+          <h4>How long does shipping take?</h4>
+          <p>Standard shipping takes 3-5 business days. Express shipping is available for 1-2 day delivery.</p>
+        </div>
+        <div class="faq-item">
+          <h4>What is your return policy?</h4>
+          <p>We offer a 30-day return policy for all items in original condition with receipt.</p>
+        </div>
+        <div class="faq-item">
+          <h4>Do you ship internationally?</h4>
+          <p>Yes, we ship to over 50 countries worldwide. Shipping costs vary by location.</p>
+        </div>
+        <div class="faq-item">
+          <h4>How can I track my order?</h4>
+          <p>You'll receive a tracking number via email once your order ships. Use it on our tracking page.</p>
+        </div>
+        <div class="faq-item">
+          <h4>Do you offer customer support?</h4>
+          <p>Yes, our customer support team is available 24/7 via phone, email, and live chat.</p>
+        </div>
+        <div class="faq-item">
+          <h4>Can I cancel my order?</h4>
+          <p>Orders can be cancelled within 1 hour of placement. Contact us immediately for assistance.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- CTA Section -->
+  <section class="cta-section">
+    <div class="container">
+      <div class="cta-content">
+        <h2>Ready to Shop with InMind?</h2>
+        <p>Discover our amazing collection of products and start your shopping journey today!</p>
+        <div class="cta-buttons">
+          <button class="btn btn-primary" routerLink="/products">Browse Products</button>
+          <button class="btn btn-outline" routerLink="/about">Learn More About Us</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</div>      
