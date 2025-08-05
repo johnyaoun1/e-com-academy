@@ -1,32 +1,69 @@
+<!-- header.component.html - Updated with profile access -->
 <header class="header">
-  <div class="header-container">
-    <div class="header-left">
-      <button class="menu-toggle" (click)="toggleMenu()">
-        <span></span>
-        <span></span>
-        <span></span>
-      </button>
+  <nav class="nav">
+    <div class="logo" routerLink="/">ZARA</div>
+    
+    <ul class="nav-links">
+      <li><a routerLink="/products">SHOP</a></li>
+      <li><a routerLink="/about">ABOUT US</a></li>
+      <li><a routerLink="/contact">CONTACT US</a></li>
+    </ul>
+    
+    <div class="nav-icons">
+      <!-- Cart Header Component -->
+      <app-cart-header></app-cart-header>
       
-      <a routerLink="/" class="logo">ZARA</a>
+      <!-- User Menu -->
+      <div class="user-menu" *ngIf="currentUser$ | async as user; else loginButton">
+        <div class="user-avatar" (click)="toggleUserMenu()">
+          <img 
+            *ngIf="user.profilePicture || user.avatar" 
+            [src]="user.profilePicture || user.avatar" 
+            [alt]="user.username"
+            class="avatar-img">
+          <div *ngIf="!user.profilePicture && !user.avatar" class="avatar-placeholder">
+            {{ (user.firstname || user.firstName || user.username || 'U').charAt(0).toUpperCase() }}
+          </div>
+          <i class="fas fa-chevron-down dropdown-icon"></i>
+        </div>
+        
+        <!-- Dropdown Menu -->
+        <div class="dropdown-menu" [class.show]="showUserMenu">
+          <div class="user-info">
+            <div class="user-name">{{ user.firstname || user.firstName || user.username }}</div>
+            <div class="user-email">{{ user.email }}</div>
+          </div>
+          <div class="menu-divider"></div>
+          <button class="menu-item" (click)="goToProfile()">
+            <i class="fas fa-user"></i>
+            My Profile
+          </button>
+          <button class="menu-item" routerLink="/cart" (click)="showUserMenu = false">
+            <i class="fas fa-shopping-cart"></i>
+            My Cart
+          </button>
+          <button class="menu-item" *ngIf="user.role === 'admin'" routerLink="/admin" (click)="showUserMenu = false">
+            <i class="fas fa-cog"></i>
+            Admin Panel
+          </button>
+          <div class="menu-divider"></div>
+          <button class="menu-item logout" (click)="logout()">
+            <i class="fas fa-sign-out-alt"></i>
+            Logout
+          </button>
+        </div>
+      </div>
       
-      <nav class="nav-menu" [class.active]="menuOpen">
-        <a routerLink="/products" routerLinkActive="active">Shop</a>
-        <a routerLink="/about" routerLinkActive="active">About Us</a>
-        <a routerLink="/contact" routerLinkActive="active">Contact Us</a>
-      </nav>
+      <!-- Login Button (when not logged in) -->
+      <ng-template #loginButton>
+        <button class="login-btn" (click)="goToLogin()">
+          <i class="fas fa-user"></i>
+          Login
+        </button>
+      </ng-template>
     </div>
-
-    <div class="header-right">
-      <a routerLink="/login" class="icon-btn">
-        <i class="fas fa-user"></i>
-      </a>
-      
-      <a routerLink="/cart" class="icon-btn cart-btn">
-        <i class="fas fa-shopping-bag"></i>
-        <span class="cart-count" *ngIf="cartItemCount > 0">
-          {{ cartItemCount }}
-        </span>
-      </a>
-    </div>
-  </div>
+  </nav>
+  
+  <!-- Backdrop for mobile menu -->
+  <div class="backdrop" [class.show]="showUserMenu" (click)="onClickOutside()"></div>
 </header>

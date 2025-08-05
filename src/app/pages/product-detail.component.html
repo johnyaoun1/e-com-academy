@@ -1,14 +1,158 @@
-<div class="product-detail-page">
-  <div class="container" *ngIf="product$ | async as product">
+<!-- product-detail.component.html - Simple version without missing components -->
+<div class="product-detail" *ngIf="product$ | async as product">
+  <div class="product-detail-container">
+    <!-- Back Button -->
+    <button class="back-btn" (click)="goBack()">
+      <i class="fas fa-arrow-left"></i> Back to Products
+    </button>
+
     <div class="product-content">
-      <app-product-gallery [images]="[product.image]"></app-product-gallery>
-      <app-product-info 
-        [product]="product"
-        (quantityChange)="onQuantityChange($event)"
-        (addToCart)="addToCart(product)">
-      </app-product-info>
+      <!-- Product Image Section -->
+      <div class="product-image-section">
+        <div class="product-image">
+          <img [src]="product.image" [alt]="product.title" />
+        </div>
+      </div>
+
+      <!-- Product Info Section -->
+      <div class="product-info-section">
+        <h1 class="product-title">{{ product.title }}</h1>
+        <p class="product-category">{{ product.category | titlecase }}</p>
+        
+        <div class="product-rating">
+          <div class="stars">
+            <i *ngFor="let star of [1,2,3,4,5]" 
+               class="fas fa-star" 
+               [class.filled]="star <= product.rating.rate"></i>
+          </div>
+          <span class="rating-text">
+            {{ product.rating.rate }} ({{ product.rating.count }} reviews)
+          </span>
+        </div>
+
+        <div class="product-price">
+          <span class="price">${{ product.price }}</span>
+          <span *ngIf="isInCart" class="in-cart-badge">
+            <i class="fas fa-check-circle"></i> In Cart ({{ cartQuantity }})
+          </span>
+        </div>
+
+        <div class="product-description">
+          <p>{{ product.description }}</p>
+        </div>
+
+        <!-- Purchase Options -->
+        <div class="purchase-options">
+          <!-- Quantity Selector -->
+          <div class="quantity-selector">
+            <label>Quantity:</label>
+            <div class="quantity-controls">
+              <button class="qty-btn" (click)="decreaseQuantity()" [disabled]="quantity <= 1">-</button>
+              <span class="quantity-display">{{ quantity }}</span>
+              <button class="qty-btn" (click)="increaseQuantity()">+</button>
+            </div>
+          </div>
+
+          <!-- Cart Actions -->
+          <div class="cart-actions">
+            <!-- Add to Cart Button -->
+            <button 
+              *ngIf="!isInCart"
+              class="add-to-cart-btn primary"
+              [class.loading]="isAddingToCart"
+              (click)="addToCart(product)"
+              [disabled]="isAddingToCart">
+              <i *ngIf="!isAddingToCart" class="fas fa-shopping-cart"></i>
+              <i *ngIf="isAddingToCart" class="fas fa-spinner fa-spin"></i>
+              <span *ngIf="!isAddingToCart">Add to Cart</span>
+              <span *ngIf="isAddingToCart">Adding...</span>
+            </button>
+
+            <!-- Update Cart Button -->
+            <button 
+              *ngIf="isInCart"
+              class="add-to-cart-btn update"
+              [class.loading]="isAddingToCart"
+              (click)="addToCart(product)"
+              [disabled]="isAddingToCart">
+              <i *ngIf="!isAddingToCart" class="fas fa-plus"></i>
+              <i *ngIf="isAddingToCart" class="fas fa-spinner fa-spin"></i>
+              <span *ngIf="!isAddingToCart">Add More</span>
+              <span *ngIf="isAddingToCart">Adding...</span>
+            </button>
+
+            <!-- Cart Management (when in cart) -->
+            <div *ngIf="isInCart" class="cart-management">
+              <div class="current-cart-info">
+                <span>Currently in cart: {{ cartQuantity }} items</span>
+              </div>
+              
+              <div class="cart-controls">
+                <button 
+                  class="cart-control-btn decrease"
+                  (click)="updateCartQuantity(product, -1)">
+                  <i class="fas fa-minus"></i>
+                  Remove One
+                </button>
+                
+                <button 
+                  class="cart-control-btn remove"
+                  (click)="removeFromCart(product)">
+                  <i class="fas fa-trash"></i>
+                  Remove All
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Product Tabs -->
+        <div class="product-tabs">
+          <div class="tab-headers">
+            <button 
+              [class.active]="activeTab === 'description'"
+              (click)="activeTab = 'description'">
+              Description
+            </button>
+            <button 
+              [class.active]="activeTab === 'details'"
+              (click)="activeTab = 'details'">
+              Details
+            </button>
+          </div>
+
+          <div class="tab-content">
+            <div *ngIf="activeTab === 'description'" class="description">
+              <p>{{ product.description }}</p>
+            </div>
+
+            <div *ngIf="activeTab === 'details'" class="details">
+              <ul>
+                <li><strong>Category:</strong> {{ product.category | titlecase }}</li>
+                <li><strong>Product ID:</strong> {{ product.id }}</li>
+                <li><strong>Average Rating:</strong> {{ product.rating.rate }}/5</li>
+                <li><strong>Total Reviews:</strong> {{ product.rating.count }}</li>
+                <li><strong>Price:</strong> ${{ product.price }}</li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
 
-    <app-similar-products [products]="similarProducts$ | async"></app-similar-products>
+    <!-- Similar Products Section -->
+    <div class="similar-products-section" *ngIf="similarProducts$ | async as similarProducts">
+      <h2>Similar Products</h2>
+      <div class="similar-products-grid">
+        <app-product-card 
+          *ngFor="let similarProduct of similarProducts" 
+          [product]="similarProduct">
+        </app-product-card>
+      </div>
+    </div>
   </div>
+</div>
+
+<!-- Loading State -->
+<div class="loading" *ngIf="!(product$ | async)">
 </div>

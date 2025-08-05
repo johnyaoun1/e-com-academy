@@ -1,3 +1,4 @@
+<!-- product-grid.component.html -->
 <div class="product-grid">
   <div class="results-info" *ngIf="products">
     <p>{{ products.length }} Products</p>
@@ -5,12 +6,30 @@
   
   <div class="grid" *ngIf="products && products.length > 0">
     <app-product-card 
-      *ngFor="let product of products" 
+      *ngFor="let product of products; trackBy: trackByProductId" 
       [product]="product">
     </app-product-card>
   </div>
 
   <div class="no-results" *ngIf="products && products.length === 0">
-    <p>No products found</p>
+    <div class="no-results-content">
+      <i class="fas fa-search"></i>
+      <h3>No products found</h3>
+      <p>Try adjusting your filters or search terms</p>
+    </div>
+  </div>
+
+  <div class="loading-products" *ngIf="!products">
+    <div class="skeleton-grid">
+      <div class="skeleton-card" *ngFor="let item of [1,2,3,4,5,6,7,8]">
+        <div class="skeleton-image"></div>
+        <div class="skeleton-content">
+          <div class="skeleton-title"></div>
+          <div class="skeleton-category"></div>
+          <div class="skeleton-rating"></div>
+          <div class="skeleton-price"></div>
+        </div>
+      </div>
+    </div>
   </div>
 </div>

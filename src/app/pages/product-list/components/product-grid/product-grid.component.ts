@@ -1,3 +1,4 @@
+// product-grid.component.ts
 import { Component, Input } from '@angular/core';
 import { Product } from '../../../../shared/services/product.service';
 
@@ -7,5 +8,9 @@ import { Product } from '../../../../shared/services/product.service';
   styleUrls: ['./product-grid.component.scss']
 })
 export class ProductGridComponent {
-  @Input() products: Product[] | null = [];
+  @Input() products: Product[] | null = null;
+
+  trackByProductId(index: number, product: Product): number {
+    return product.id;
+  }
 }

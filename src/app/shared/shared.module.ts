@@ -7,8 +7,8 @@ import { RouterModule } from '@angular/router';
 import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
-import { LoadingSpinnerComponent } from './components/loading-spinner/loading-spinner.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
+import { CartHeaderComponent } from './components/cart-header/cart-header.component'; // ✅ Add this
 
 // Pipes
 import { CurrencyFormatPipe } from './pipes/currency-format.pipe';
@@ -22,9 +22,10 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     HeaderComponent,
     FooterComponent,
     ProductCardComponent,
-    LoadingSpinnerComponent,
     SearchBarComponent,
     CurrencyFormatPipe,
+        CartHeaderComponent, 
+
     TruncatePipe,
     LazyLoadDirective
   ],
@@ -40,9 +41,10 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     ReactiveFormsModule,
     RouterModule,
     HeaderComponent,
+        CartHeaderComponent, 
+
     FooterComponent,
     ProductCardComponent,
-    LoadingSpinnerComponent,
     SearchBarComponent,
     CurrencyFormatPipe,
     TruncatePipe,

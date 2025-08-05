@@ -78,7 +78,11 @@ export class LoginComponent implements OnInit {
         }
       },
       error: (error) => {
-        this.error = error?.error?.message || 'Invalid credentials';
+        if (error?.error?.Message) {
+          this.error = error.error.Message.join('. ');
+        } else {
+          this.error = error?.error?.message || 'Invalid credentials';
+        }
         this.loading = false;
       }
     });

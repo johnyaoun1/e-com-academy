@@ -1,0 +1,15 @@
+<!-- cart-header.component.html - Updated to show user info -->
+<div class="cart-header" (click)="goToCart()">
+  <div class="cart-icon">
+    <i class="fas fa-shopping-bag"></i>
+    <span class="cart-count" *ngIf="(cartCount$ | async) as count">
+      {{ count > 99 ? '99+' : count }}
+    </span>
+  </div>
+  <div class="cart-info" *ngIf="(cartTotal$ | async) as total">
+    <span class="cart-total">${{ total | number:'1.2-2' }}</span>
+    <span class="user-indicator" *ngIf="(userInfo$ | async) as user">
+      {{ user.username || user.firstname }}'s Cart
+    </span>
+  </div>
+</div>

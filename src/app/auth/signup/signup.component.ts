@@ -62,49 +62,58 @@ export class SignupComponent implements OnInit {
     return null;
   }
 
-onSubmit() {
-  console.log('Signup form submitted');
-  if (this.signupForm.invalid) {
-    console.log('Form is invalid');
-    this.markFormGroupTouched();
-    return;
+  onSubmit() {
+    console.log('Signup form submitted');
+    if (this.signupForm.invalid) {
+      console.log('Form is invalid');
+      this.markFormGroupTouched();
+      return;
+    }
+
+    this.loading = true;
+    this.error = '';
+
+    // Remove confirmPassword and adminCode from form data before sending
+    const formData = { ...this.signupForm.value };
+    delete formData.confirmPassword;
+    delete formData.adminCode; // Don't send admin code to backend
+
+    console.log('Sending signup data:', formData);
+
+    this.authService.signup(formData).subscribe({
+      next: (user) => {
+        console.log('Signup successful:', user);
+        this.loading = false;
+
+        // 🔑 Show token in console after signup
+        const token = this.authService.getToken();
+        console.log('🔑 === YOUR TOKEN FOR SWAGGER ===');
+        console.log('Token:', token);
+        console.log('For Swagger Authorization:');
+        console.log(`Bearer ${token}`);
+        console.log('================================');
+
+        // Redirect based on user role
+        if (user.role === 'admin') {
+          console.log('Redirecting admin to dashboard');
+          this.router.navigate(['/admin/dashboard']);
+        } else {
+          console.log('Redirecting user to profile');
+          this.router.navigate(['/profile']);
+        }
+      },
+      error: (error) => {
+        console.error('Signup error:', error);
+        this.error = error?.error?.message || 'Registration failed. Please try again.';
+        this.loading = false;
+      }
+    });
   }
 
-  this.loading = true;
-  this.error = '';
-
-  // Remove confirmPassword and adminCode from form data before sending
-  const formData = { ...this.signupForm.value };
-  delete formData.confirmPassword;
-  delete formData.adminCode; // Don't send admin code to backend
-
-  console.log('Sending signup data:', formData);
-
-  this.authService.signup(formData).subscribe({
-    next: (user) => {
-      console.log('Signup successful:', user);
-      this.loading = false;
-      
-      // Redirect based on user role
-      if (user.role === 'admin') {
-        console.log('Redirecting admin to dashboard');
-        this.router.navigate(['/admin/dashboard']);
-      } else {
-        console.log('Redirecting user to profile');
-        this.router.navigate(['/profile']);
-      }
-    },
-    error: (error) => {
-      console.error('Signup error:', error);
-      this.error = error?.error?.message || 'Registration failed. Please try again.';
-      this.loading = false;
-    }
-  });
-}
   onSwitchToLogin() {
     this.router.navigate(['/auth/login']);
   }
-
+  
   goToLogin() {
     this.router.navigate(['/auth/login']);
   }

@@ -1,3 +1,4 @@
+<!-- product-list.component.html -->
 <div class="product-list-page">
   <div class="page-header">
     <h1>{{ searchQuery ? 'Search Results' : (selectedCategory || 'All Products') }}</h1>
@@ -16,7 +17,6 @@
 
     <div class="products-section">
       <div class="loading" *ngIf="loading">
-        <app-loading-spinner></app-loading-spinner>
       </div>
 
       <app-product-grid 
