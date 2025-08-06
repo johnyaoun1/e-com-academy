@@ -1,0 +1,45 @@
+<!-- src/app/pages/favorites/favorites.component.html -->
+<div class="favorites-page">
+  <div class="page-header">
+    <div class="container">
+      <h1 class="page-title">My Favorites</h1>
+      <p class="page-subtitle" *ngIf="favorites$ | async as favorites">
+        {{ favorites.length }} {{ favorites.length === 1 ? 'item' : 'items' }}
+      </p>
+    </div>
+  </div>
+  
+  <div class="page-content">
+    <div class="container">
+      <div class="favorites-content" *ngIf="favorites$ | async as favorites">
+        <!-- Empty State -->
+        <div class="empty-state" *ngIf="favorites.length === 0">
+          <div class="empty-icon">
+            <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+          </div>
+          <h3>No favorites yet</h3>
+          <p>Start adding products to your favorites to see them here.</p>
+          <button routerLink="/products" class="browse-btn">Browse Products</button>
+        </div>
+        
+        <!-- Favorites Grid -->
+        <div class="favorites-grid" *ngIf="favorites.length > 0">
+          <app-product-card 
+            *ngFor="let product of favorites; trackBy: trackByProductId" 
+            [product]="product">
+          </app-product-card>
+        </div>
+        
+        <!-- Clear All Button -->
+        <div class="favorites-actions" *ngIf="favorites.length > 0">
+          <button (click)="clearAllFavorites()" class="clear-all-btn">
+            <i class="fas fa-trash"></i>
+            Clear All Favorites
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

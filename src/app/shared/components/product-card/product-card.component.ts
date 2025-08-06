@@ -5,6 +5,8 @@ import { Product } from '../../services/product.service';
 import { CartService, CartItem } from '../../services/cart.service';
 import { Subject, takeUntil } from 'rxjs';
 
+
+
 @Component({
   selector: 'app-product-card',
   templateUrl: './product-card.component.html',

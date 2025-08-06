@@ -1,254 +1,276 @@
 .checkout-page {
-  min-height: 100vh;
-  padding-top: 80px;
-  background: #f5f5f5;
+  padding: 30px 0;
 
   .container {
     max-width: 1200px;
     margin: 0 auto;
-    padding: 2rem;
+    padding: 0 15px;
+  }
 
-    h1 {
-      font-size: 2rem;
-      margin-bottom: 2rem;
-      font-weight: 300;
-    }
+  h1 {
+    margin-bottom: 30px;
+    font-size: 28px;
+    color: #333;
   }
 
   .checkout-content {
-    display: grid;
-    grid-template-columns: 1fr 400px;
-    gap: 2rem;
+    display: flex;
+    gap: 30px;
+
+    @media (max-width: 992px) {
+      flex-direction: column;
+    }
   }
 
   .checkout-form {
-    background: white;
+    flex: 2;
+  }
+
+  .order-summary {
+    flex: 1;
+    background: #f9f9f9;
+    padding: 20px;
     border-radius: 8px;
-    padding: 2rem;
+    height: fit-content;
+
+    h2 {
+      margin-top: 0;
+      padding-bottom: 10px;
+      border-bottom: 1px solid #ddd;
+    }
   }
 
   .progress-steps {
     display: flex;
     align-items: center;
-    margin-bottom: 3rem;
+    margin-bottom: 30px;
 
     .step {
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 0.5rem;
-
-      &.active .step-number {
-        background: #000;
-        color: white;
-      }
-
-      &.completed .step-number {
-        background: #28a745;
-        color: white;
-      }
+      position: relative;
 
       .step-number {
         width: 30px;
         height: 30px;
         border-radius: 50%;
-        background: #ddd;
-        color: #666;
+        background-color: #ddd;
         display: flex;
         align-items: center;
         justify-content: center;
-        font-weight: 500;
+        margin-bottom: 5px;
+        color: #666;
+        font-weight: bold;
       }
 
       .step-label {
-        font-size: 0.875rem;
+        font-size: 14px;
         color: #666;
+      }
+
+      &.active {
+        .step-number {
+          background-color: #4CAF50;
+          color: white;
+        }
+
+        .step-label {
+          color: #333;
+          font-weight: bold;
+        }
+      }
+
+      &.completed {
+        .step-number {
+          background-color: #4CAF50;
+          color: white;
+        }
       }
     }
 
     .step-line {
       flex: 1;
       height: 2px;
-      background: #ddd;
-      margin: 0 1rem;
+      background-color: #ddd;
+      margin: 0 10px;
 
       &.active {
-        background: #000;
+        background-color: #4CAF50;
       }
     }
   }
 
   .form-step {
+    background: white;
+    padding: 20px;
+    border-radius: 8px;
+    box-shadow: 0 2px 5px rgba(0,0,0,0.05);
+
     h2 {
-      font-size: 1.5rem;
-      margin-bottom: 1.5rem;
-      font-weight: 400;
+      margin-top: 0;
+      margin-bottom: 20px;
+      font-size: 20px;
+    }
+  }
+
+  .form-group {
+    margin-bottom: 20px;
+
+    label {
+      display: block;
+      margin-bottom: 5px;
+      font-weight: 500;
+      color: #555;
     }
 
-    .form-row {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 1rem;
+    .form-control {
+      width: 100%;
+      padding: 10px;
+      border: 1px solid #ddd;
+      border-radius: 4px;
+      font-size: 16px;
+
+      &.is-invalid {
+        border-color: #dc3545;
+      }
     }
+
+    .invalid-feedback {
+      color: #dc3545;
+      font-size: 14px;
+      margin-top: 5px;
+    }
+  }
+
+  .form-row {
+    display: flex;
+    gap: 15px;
 
     .form-group {
-      margin-bottom: 1.5rem;
+      flex: 1;
+    }
+  }
 
-      label {
-        display: block;
-        margin-bottom: 0.5rem;
-        font-size: 0.875rem;
-        color: #666;
-      }
+  .form-actions {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 30px;
 
-      .form-control {
-        width: 100%;
-        padding: 0.75rem;
-        border: 1px solid #ddd;
-        border-radius: 4px;
-        font-size: 1rem;
+    .btn-secondary {
+      background: #f0f0f0;
+      color: #333;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
 
-        &:focus {
-          outline: none;
-          border-color: #000;
-        }
-      }
-
-      select.form-control {
-        cursor: pointer;
+      &:hover {
+        background: #e0e0e0;
       }
     }
 
-    .form-actions {
-      display: flex;
-      justify-content: space-between;
-      margin-top: 2rem;
+    .btn-primary {
+      background: #4CAF50;
+      color: white;
+      border: none;
+      padding: 10px 20px;
+      border-radius: 4px;
+      cursor: pointer;
+      font-size: 16px;
 
-      button {
-        padding: 0.75rem 2rem;
-        border: none;
-        border-radius: 4px;
-        cursor: pointer;
-        font-size: 1rem;
-        transition: all 0.3s;
+      &:hover {
+        background: #45a049;
       }
 
-      .btn-primary {
-        background: #000;
-        color: white;
-
-        &:hover {
-          background: #333;
-        }
-      }
-
-      .btn-secondary {
-        background: white;
-        color: #000;
-        border: 1px solid #ddd;
-
-        &:hover {
-          background: #f5f5f5;
-        }
+      &:disabled {
+        background: #cccccc;
+        cursor: not-allowed;
       }
     }
   }
 
-  .order-summary {
-    background: white;
-    border-radius: 8px;
-    padding: 1.5rem;
-    height: fit-content;
+  .payment-demo-notice {
+    background: #fff8e1;
+    border-left: 4px solid #ffc107;
+    padding: 15px;
+    margin-bottom: 20px;
 
-    h2 {
-      font-size: 1.2rem;
-      margin-bottom: 1.5rem;
-      font-weight: 500;
+    h3 {
+      margin-top: 0;
+      color: #ff9800;
     }
 
-    .order-items {
-      margin-bottom: 1.5rem;
-      max-height: 300px;
-      overflow-y: auto;
+    p {
+      margin-bottom: 5px;
     }
 
-    .order-item {
-      display: flex;
-      gap: 1rem;
-      padding: 0.75rem 0;
-      border-bottom: 1px solid #f5f5f5;
+    ul {
+      margin: 5px 0 0;
+      padding-left: 20px;
+    }
 
-      img {
-        width: 60px;
-        height: 60px;
-        object-fit: contain;
-        background: #f5f5f5;
-        padding: 0.25rem;
-        border-radius: 4px;
-      }
+    code {
+      background: #f5f5f5;
+      padding: 2px 4px;
+      border-radius: 3px;
+    }
+  }
 
-      .item-info {
-        flex: 1;
+  .order-items {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+  }
 
-        .item-title {
-          font-size: 0.875rem;
-          margin-bottom: 0.25rem;
-        }
+  .order-item {
+    display: flex;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #eee;
 
-        .item-quantity {
-          font-size: 0.75rem;
-          color: #666;
-        }
-      }
+    img {
+      width: 60px;
+      height: 60px;
+      object-fit: cover;
+      border-radius: 4px;
+    }
 
-      .item-price {
+    .item-info {
+      flex: 1;
+
+      .item-title {
+        margin: 0;
         font-weight: 500;
       }
-    }
 
-    .summary-totals {
-      .summary-row {
-        display: flex;
-        justify-content: space-between;
-        padding: 0.5rem 0;
-        font-size: 0.875rem;
+      .item-quantity {
+        margin: 5px 0 0;
+        font-size: 14px;
         color: #666;
+      }
+    }
 
-        &.total {
-          border-top: 1px solid #ddd;
-          margin-top: 0.5rem;
-          padding-top: 1rem;
-          font-size: 1.1rem;
-          font-weight: 500;
-          color: #000;
-        }
+    .item-price {
+      font-weight: bold;
+    }
+  }
+
+  .summary-totals {
+    .summary-row {
+      display: flex;
+      justify-content: space-between;
+      padding: 8px 0;
+      border-bottom: 1px solid #eee;
+
+      &.total {
+        font-weight: bold;
+        font-size: 18px;
+        border-bottom: none;
+        padding-top: 15px;
       }
     }
   }
 }
 
-@media (max-width: 768px) {
-  .checkout-page {
-    .checkout-content {
-      grid-template-columns: 1fr;
-    }
-
-    .checkout-form {
-      .form-row {
-        grid-template-columns: 1fr;
-      }
-
-      .form-actions {
-        flex-direction: column-reverse;
-        gap: 1rem;
-
-        button {
-          width: 100%;
-        }
-      }
-    }
-
-    .order-summary {
-      order: -1;
-    }
-  }
-}

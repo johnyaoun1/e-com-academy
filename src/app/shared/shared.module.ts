@@ -8,7 +8,8 @@ import { HeaderComponent } from './components/header/header.component';
 import { FooterComponent } from './components/footer/footer.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
-import { CartHeaderComponent } from './components/cart-header/cart-header.component'; // ✅ Add this
+import { CartHeaderComponent } from './components/cart-header/cart-header.component';
+import { AddToFavoritesComponent } from './components/add-to-favorites/add-to-favorites.component'; // ✅ Add this
 
 // Pipes
 import { CurrencyFormatPipe } from './pipes/currency-format.pipe';
@@ -24,8 +25,8 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     ProductCardComponent,
     SearchBarComponent,
     CurrencyFormatPipe,
-        CartHeaderComponent, 
-
+    CartHeaderComponent,
+    AddToFavoritesComponent, // ✅ Add this
     TruncatePipe,
     LazyLoadDirective
   ],
@@ -41,11 +42,11 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     ReactiveFormsModule,
     RouterModule,
     HeaderComponent,
-        CartHeaderComponent, 
-
+    CartHeaderComponent,
     FooterComponent,
     ProductCardComponent,
     SearchBarComponent,
+    AddToFavoritesComponent, // ✅ Add this
     CurrencyFormatPipe,
     TruncatePipe,
     LazyLoadDirective

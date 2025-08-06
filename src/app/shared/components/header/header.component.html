@@ -1,7 +1,6 @@
-<!-- header.component.html - Updated with profile access -->
 <header class="header">
   <nav class="nav">
-    <div class="logo" routerLink="/">ZARA</div>
+    <div class="logo" routerLink="/">InMind</div>
     
     <ul class="nav-links">
       <li><a routerLink="/products">SHOP</a></li>
@@ -10,10 +9,34 @@
     </ul>
     
     <div class="nav-icons">
-      <!-- Cart Header Component -->
+      <!-- ✅ Add Favorites Button Here -->
+      <div class="favorites-wrapper">
+        <button 
+          class="header-action-btn favorites-btn" 
+          (click)="navigateToFavorites()"
+          [attr.aria-label]="'View favorites (' + (favoritesCount$ | async) + ' items)'">
+          <div class="icon-wrapper">
+            <svg 
+              width="24" 
+              height="24" 
+              viewBox="0 0 24 24" 
+              fill="none" 
+              stroke="currentColor" 
+              stroke-width="2">
+              <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"></path>
+            </svg>
+            <span 
+              class="count-badge" 
+              *ngIf="(favoritesCount$ | async) as count"
+              [class.has-items]="count > 0">
+              {{ count > 99 ? '99+' : count }}
+            </span>
+          </div>
+        </button>
+      </div>
+      
       <app-cart-header></app-cart-header>
       
-      <!-- User Menu -->
       <div class="user-menu" *ngIf="currentUser$ | async as user; else loginButton">
         <div class="user-avatar" (click)="toggleUserMenu()">
           <img 
@@ -27,7 +50,6 @@
           <i class="fas fa-chevron-down dropdown-icon"></i>
         </div>
         
-        <!-- Dropdown Menu -->
         <div class="dropdown-menu" [class.show]="showUserMenu">
           <div class="user-info">
             <div class="user-name">{{ user.firstname || user.firstName || user.username }}</div>
@@ -42,6 +64,11 @@
             <i class="fas fa-shopping-cart"></i>
             My Cart
           </button>
+          <!-- ✅ Add Favorites to User Menu -->
+          <button class="menu-item" (click)="navigateToFavorites(); showUserMenu = false">
+            <i class="fas fa-heart"></i>
+            My Favorites
+          </button>
           <button class="menu-item" *ngIf="user.role === 'admin'" routerLink="/admin" (click)="showUserMenu = false">
             <i class="fas fa-cog"></i>
             Admin Panel
@@ -54,7 +81,6 @@
         </div>
       </div>
       
-      <!-- Login Button (when not logged in) -->
       <ng-template #loginButton>
         <button class="login-btn" (click)="goToLogin()">
           <i class="fas fa-user"></i>
@@ -64,6 +90,6 @@
     </div>
   </nav>
   
-  <!-- Backdrop for mobile menu -->
   <div class="backdrop" [class.show]="showUserMenu" (click)="onClickOutside()"></div>
+  
 </header>

@@ -1,128 +1,268 @@
+<!-- Simplified Admin Dashboard Template -->
 <div class="admin-dashboard">
-  <!-- Header Section -->
   <div class="dashboard-header">
-    <div class="container">
-      <h1 class="dashboard-title">Admin Dashboard</h1>
-      <p class="dashboard-subtitle">Manage your e-commerce store efficiently</p>
+    <h1>Admin Dashboard</h1>
+    <div class="tab-navigation">
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'dashboard'"
+        (click)="setActiveTab('dashboard')">
+        Dashboard
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'orders'"
+        (click)="setActiveTab('orders')">
+        Orders ({{totalOrders}})
+      </button>
+      <button 
+        class="tab-btn" 
+        [class.active]="activeTab === 'inventory'"
+        (click)="setActiveTab('inventory')">
+        Inventory ({{totalProducts}})
+      </button>
     </div>
   </div>
 
-  <div class="container">
-    <!-- Stats Section -->
-    <div class="stats-section">
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="icon-products"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.totalProducts }}</h3>
-            <p class="stat-label">Total Products</p>
-          </div>
+  <!-- Dashboard Overview Tab -->
+  <div *ngIf="activeTab === 'dashboard'" class="dashboard-overview">
+    <div class="stats-grid">
+      <div class="stat-card">
+        <div class="stat-icon">📊</div>
+        <div class="stat-details">
+          <h3>Total Revenue</h3>
+          <p class="stat-value">${{totalRevenue | number:'1.2-2'}}</p>
+          <span class="stat-change">Today: ${{getRevenueToday() | number:'1.2-2'}}</span>
         </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="icon-categories"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.totalCategories }}</h3>
-            <p class="stat-label">Categories</p>
-          </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">🛍️</div>
+        <div class="stat-details">
+          <h3>Total Orders</h3>
+          <p class="stat-value">{{totalOrders}}</p>
+          <span class="stat-change">Today: {{getOrdersToday()}}</span>
         </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="icon-orders"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">{{ stats.totalOrders }}</h3>
-            <p class="stat-label">Total Orders</p>
-          </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">⏳</div>
+        <div class="stat-details">
+          <h3>Pending Orders</h3>
+          <p class="stat-value">{{getPendingOrders()}}</p>
+          <span class="stat-change">Processing</span>
         </div>
-        
-        <div class="stat-card">
-          <div class="stat-icon">
-            <i class="icon-revenue"></i>
-          </div>
-          <div class="stat-content">
-            <h3 class="stat-number">${{ stats.totalRevenue.toFixed(2) }}</h3>
-            <p class="stat-label">Total Revenue</p>
-          </div>
+      </div>
+
+      <div class="stat-card">
+        <div class="stat-icon">📦</div>
+        <div class="stat-details">
+          <h3>Products</h3>
+          <p class="stat-value">{{totalProducts}}</p>
+          <span class="stat-change" [class.warning]="getStockAlerts() > 0">
+            {{getStockAlerts()}} alerts
+          </span>
         </div>
       </div>
     </div>
 
-    <!-- Products Management Section -->
-    <div class="management-section">
-      <div class="section-header">
-        <h2 class="section-title">Product Management</h2>
-        <div class="section-actions">
-          <button class="btn btn-secondary" (click)="exportProducts()">Export CSV</button>
-          <button class="btn btn-primary">Add Product</button>
+    <!-- Alerts Section -->
+    <div class="alerts-section" *ngIf="lowStockItems.length > 0 || outOfStockItems.length > 0">
+      <h2>Stock Alerts</h2>
+      
+      <div class="alert-card error" *ngIf="outOfStockItems.length > 0">
+        <h3>Out of Stock ({{outOfStockItems.length}})</h3>
+        <div class="alert-items">
+          <span class="alert-item" *ngFor="let item of outOfStockItems">
+            {{item.productName}}
+          </span>
         </div>
       </div>
-      
-      <div class="grid-container">
-        <ag-grid-angular
-          style="width: 100%; height: 400px;"
-          class="ag-theme-alpine grid-responsive"
-          [columnDefs]="productColumnDefs"
-          [rowData]="products"
-          [defaultColDef]="defaultColDef"
-          [pagination]="true"
-          [paginationPageSize]="10"
-          [rowSelection]="'multiple'"
-          (gridReady)="onProductGridReady($event)">
-        </ag-grid-angular>
+
+      <div class="alert-card warning" *ngIf="lowStockItems.length > 0">
+        <h3>Low Stock ({{lowStockItems.length}})</h3>
+        <div class="alert-items">
+          <span class="alert-item" *ngFor="let item of lowStockItems">
+            {{item.productName}} ({{item.currentStock}} left)
+          </span>
+        </div>
       </div>
     </div>
 
-    <!-- Orders Management Section -->
-    <div class="management-section">
+    <!-- Recent Orders Section -->
+    <div class="recent-orders-section">
       <div class="section-header">
-        <h2 class="section-title">Recent Orders</h2>
-        <div class="section-actions">
-          <button class="btn btn-secondary">Export Orders</button>
-          <button class="btn btn-primary">View All Orders</button>
+        <h2>Recent Orders</h2>
+        <button class="btn-secondary" (click)="setActiveTab('orders')">View All</button>
+      </div>
+      
+      <div class="recent-orders-list" *ngIf="recentOrders.length > 0">
+        <div class="order-item" *ngFor="let order of recentOrders">
+          <div class="order-info">
+            <span class="order-id">#{{order.id}}</span>
+            <span class="customer-name">{{order.customerName}}</span>
+            <span class="order-total">${{order.total | number:'1.2-2'}}</span>
+          </div>
+          <div class="order-meta">
+            <span class="order-date">{{order.date | date:'short'}}</span>
+            <span class="order-status" [style.color]="getStatusColor(order.status)">
+              {{order.status}}
+            </span>
+          </div>
         </div>
       </div>
       
-      <div class="grid-container">
-        <ag-grid-angular
-          style="width: 100%; height: 400px;"
-          class="ag-theme-alpine grid-responsive"
-          [columnDefs]="orderColumnDefs"
-          [rowData]="orders"
-          [defaultColDef]="defaultColDef"
-          [pagination]="true"
-          [paginationPageSize]="10"
-          (gridReady)="onOrderGridReady($event)">
-        </ag-grid-angular>
+      <div class="no-data" *ngIf="recentOrders.length === 0">
+        <p>No recent orders found</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Orders Tab -->
+  <div *ngIf="activeTab === 'orders'" class="orders-section">
+    <div class="section-header">
+      <h2>Order Management</h2>
+      <div class="section-actions">
+        <button class="btn-primary" (click)="exportOrders()">Export Orders</button>
       </div>
     </div>
 
-    <!-- Customers Management Section -->
-    <div class="management-section">
-      <div class="section-header">
-        <h2 class="section-title">Customer Management</h2>
-        <div class="section-actions">
-          <button class="btn btn-secondary">Export Customers</button>
-          <button class="btn btn-primary">Add Customer</button>
-        </div>
-      </div>
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Order ID</th>
+            <th>Customer</th>
+            <th>Email</th>
+            <th>Total</th>
+            <th>Date</th>
+            <th>Status</th>
+            <th>Items</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let order of orders" [class]="'status-' + order.status.toLowerCase()">
+            <td class="order-id">#{{order.id}}</td>
+            <td>{{order.customerName}}</td>
+            <td>{{order.email}}</td>
+            <td class="amount">${{order.total | number:'1.2-2'}}</td>
+            <td>{{order.date | date:'short'}}</td>
+            <td>
+              <span class="status-badge" [style.color]="getStatusColor(order.status)">
+                {{order.status}}
+              </span>
+            </td>
+            <td class="items-cell">
+              <span *ngFor="let item of order.items; let last = last">
+                {{item.name}} ({{item.quantity}})<span *ngIf="!last">, </span>
+              </span>
+            </td>
+            <td class="actions-cell">
+              <button 
+                class="btn-action btn-ship" 
+                *ngIf="order.status === 'Processing'"
+                (click)="updateOrderStatus(order.id, 'Shipped')">
+                Ship
+              </button>
+              <button 
+                class="btn-action btn-cancel" 
+                *ngIf="order.status !== 'Cancelled'"
+                (click)="updateOrderStatus(order.id, 'Cancelled')">
+                Cancel
+              </button>
+            </td>
+          </tr>
+        </tbody>
+      </table>
       
-      <div class="grid-container">
-        <ag-grid-angular
-          style="width: 100%; height: 400px;"
-          class="ag-theme-alpine grid-responsive"
-          [columnDefs]="customerColumnDefs"
-          [rowData]="customers"
-          [defaultColDef]="defaultColDef"
-          [pagination]="true"
-          [paginationPageSize]="10"
-          (gridReady)="onCustomerGridReady($event)">
-        </ag-grid-angular>
+      <div class="no-data" *ngIf="orders.length === 0">
+        <p>No orders found</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Inventory Tab -->
+  <div *ngIf="activeTab === 'inventory'" class="inventory-section">
+    <div class="section-header">
+      <h2>Inventory Management</h2>
+      <div class="section-actions">
+        <button class="btn-primary" (click)="exportInventory()">Export Inventory</button>
+      </div>
+    </div>
+
+    <!-- Inventory Stats -->
+    <div class="inventory-stats">
+      <div class="stat-item">
+        <span class="stat-label">Total Products:</span>
+        <span class="stat-value">{{totalProducts}}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Low Stock Items:</span>
+        <span class="stat-value warning">{{lowStockItems.length}}</span>
+      </div>
+      <div class="stat-item">
+        <span class="stat-label">Out of Stock:</span>
+        <span class="stat-value error">{{outOfStockItems.length}}</span>
+      </div>
+    </div>
+
+    <div class="table-container">
+      <table class="data-table">
+        <thead>
+          <tr>
+            <th>Image</th>
+            <th>Product ID</th>
+            <th>Product Name</th>
+            <th>Category</th>
+            <th>Price</th>
+            <th>Current Stock</th>
+            <th>Initial Stock</th>
+            <th>Last Updated</th>
+            <th>Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let item of inventoryItems" [class.low-stock]="item.currentStock < 10" [class.out-of-stock]="item.currentStock === 0">
+            <td class="image-cell">
+              <img [src]="item.productImage" [alt]="item.productName" class="product-image" />
+            </td>
+            <td>{{item.productId}}</td>
+            <td>{{item.productName}}</td>
+            <td>{{item.category}}</td>
+            <td class="amount">${{item.price | number:'1.2-2'}}</td>
+            <td class="stock-cell">
+              <span 
+                class="stock-badge" 
+                [class.low]="item.currentStock < 10 && item.currentStock > 0"
+                [class.out]="item.currentStock === 0">
+                {{item.currentStock}}
+              </span>
+            </td>
+            <td>{{item.initialStock}}</td>
+            <td>{{item.lastUpdated | date:'short'}}</td>
+            <td class="actions-cell">
+              <div class="stock-update">
+                <input 
+                  type="number" 
+                  [id]="'stock-' + item.productId" 
+                  [value]="item.currentStock" 
+                  min="0" 
+                  max="9999" 
+                  class="stock-input" />
+                <button 
+                  class="btn-action btn-update" 
+                  (click)="updateInventoryStock(item.productId)">
+                  Update
+                </button>
+              </div>
+            </td>
+          </tr>
+        </tbody>
+      </table>
+      
+      <div class="no-data" *ngIf="inventoryItems.length === 0">
+        <p>No inventory items found</p>
       </div>
     </div>
   </div>

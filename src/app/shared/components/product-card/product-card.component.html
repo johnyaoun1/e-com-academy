@@ -2,6 +2,16 @@
 <div class="product-card" (click)="viewProduct()">
   <div class="product-image">
     <img [src]="product.image" [alt]="product.title" />
+    
+    <!-- ✅ ADD FAVORITES BUTTON HERE -->
+    <div class="favorite-overlay">
+      <app-add-to-favorites 
+        [product]="product" 
+        size="medium"
+        (click)="$event.stopPropagation()">
+      </app-add-to-favorites>
+    </div>
+    
     <div class="product-overlay">
       <button class="quick-view-btn" (click)="quickView($event)">
         <i class="fas fa-eye"></i>
@@ -20,7 +30,7 @@
       <div class="stars">
         <i *ngFor="let star of [1,2,3,4,5]" 
            class="fas fa-star" 
-           [class.filled]="star <= product.rating.rate"></i>
+           [class.filled]="star <= product.rating.rate"></i>  
       </div>
       <span class="rating-count">({{ product.rating.count }})</span>
     </div>

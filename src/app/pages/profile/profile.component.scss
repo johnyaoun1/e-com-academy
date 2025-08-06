@@ -795,24 +795,27 @@
 }
 
 // Responsive design
+/* ===== MOBILE OVERRIDES ONLY ===== */
 @media (max-width: 768px) {
   .profile-page {
     .profile-content {
-      grid-template-columns: 1fr;
-      gap: 20px;
-
+      display: flex;
+      flex-direction: column;
+      
       .profile-sidebar {
+        width: 100%;
+        margin-bottom: 1rem;
+        
         .profile-nav {
           display: flex;
           overflow-x: auto;
-          padding: 10px;
-
+          padding-bottom: 10px;
+          
           a {
-            min-width: 120px;
-            text-align: center;
+            white-space: nowrap;
             border-left: none;
             border-bottom: 3px solid transparent;
-
+            
             &.active {
               border-left: none;
               border-bottom-color: #007bff;
@@ -820,32 +823,9 @@
           }
         }
       }
-
+      
       .profile-main {
-        padding: 20px;
-
-        .section-header {
-          flex-direction: column;
-          align-items: stretch;
-          gap: 15px;
-
-          .section-actions {
-            justify-content: center;
-          }
-        }
-
-        .form-section .form-row {
-          grid-template-columns: 1fr;
-        }
-
-        .payment-methods,
-        .addresses-list {
-          grid-template-columns: 1fr;
-        }
-
-        .form-actions {
-          flex-direction: column;
-        }
+        width: 100%;
       }
     }
   }

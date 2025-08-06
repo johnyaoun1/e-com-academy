@@ -1,71 +1,84 @@
-<aside class="filter-sidebar">
-  <div class="filter-header">
-    <h3>Filters</h3>
-    <button class="clear-btn" (click)="clearFilters()">Clear All</button>
-  </div>
+<div class="filter-container">
+  <button class="mobile-filter-toggle" (click)="toggleMobileFilter()">
+    <i class="fas fa-filter"></i> Filters
+  </button>
 
-  <div class="filter-section">
-    <h4>Categories</h4>
-    <div class="filter-options">
-      <label class="filter-option">
-        <input 
-          type="radio" 
-          name="category" 
-          [checked]="!selectedCategory"
-          (change)="onCategoryChange('')"
-        />
-        <span>All Categories</span>
-      </label>
-      <label class="filter-option" *ngFor="let category of categories">
-        <input 
-          type="radio" 
-          name="category" 
-          [checked]="selectedCategory === category"
-          (change)="onCategoryChange(category)"
-        />
-        <span>{{ category | titlecase }}</span>
-      </label>
-    </div>
-  </div>
+  <div class="filter-backdrop" [class.active]="mobileFilterOpen" (click)="toggleMobileFilter()"></div>
 
-  <div class="filter-section">
-    <h4>Sort By</h4>
-    <div class="filter-options">
-      <label class="filter-option" *ngFor="let option of sortOptions">
-        <input 
-          type="radio" 
-          name="sort" 
-          [checked]="selectedSort === option.value"
-          (change)="onSortChange(option.value)"
-        />
-        <span>{{ option.label }}</span>
-      </label>
+  <aside class="filter-sidebar" [class.active]="mobileFilterOpen">
+    <div class="filter-header">
+      <h3>Filters</h3>
+      <div>
+        <button class="clear-btn" (click)="clearFilters()">Clear All</button>
+        <button class="mobile-close-btn" (click)="toggleMobileFilter()">
+          <i class="fas fa-times"></i>
+        </button>
+      </div>
     </div>
-  </div>
 
-  <div class="filter-section">
-    <h4>Price Range</h4>
-    <div class="price-inputs">
-      <input 
-        type="number" 
-        placeholder="Min" 
-        [value]="priceRange.min"
-        (change)="onPriceChange('min', $any($event.target).value)"
-        min="0"
-        [max]="maxPrice"
-      />
-      <span>-</span>
-      <input 
-        type="number" 
-        placeholder="Max" 
-        [value]="priceRange.max"
-        (change)="onPriceChange('max', $any($event.target).value)"
-        min="0"
-        [max]="maxPrice"
-      />
+    <div class="filter-section">
+      <h4>Categories</h4>
+      <div class="filter-options">
+        <label class="filter-option">
+          <input 
+            type="radio" 
+            name="category" 
+            [checked]="!selectedCategory"
+            (change)="onCategoryChange('')"
+          />
+          <span>All Categories</span>
+        </label>
+        <label class="filter-option" *ngFor="let category of categories">
+          <input 
+            type="radio" 
+            name="category" 
+            [checked]="selectedCategory === category"
+            (change)="onCategoryChange(category)"
+          />
+          <span>{{ category | titlecase }}</span>
+        </label>
+      </div>
     </div>
-    <div class="price-display">
-      ${{ priceRange.min }} - ${{ priceRange.max }}
+
+    <div class="filter-section">
+      <h4>Sort By</h4>
+      <div class="filter-options">
+        <label class="filter-option" *ngFor="let option of sortOptions">
+          <input 
+            type="radio" 
+            name="sort" 
+            [checked]="selectedSort === option.value"
+            (change)="onSortChange(option.value)"
+          />
+          <span>{{ option.label }}</span>
+        </label>
+      </div>
     </div>
-  </div>
-</aside>
+
+    <div class="filter-section">
+      <h4>Price Range</h4>
+      <div class="price-inputs">
+        <input 
+          type="number" 
+          placeholder="Min" 
+          [value]="priceRange.min"
+          (change)="onPriceChange('min', $any($event.target).value)"
+          min="0"
+          [max]="maxPrice"
+        />
+        <span>-</span>
+        <input 
+          type="number" 
+          placeholder="Max" 
+          [value]="priceRange.max"
+          (change)="onPriceChange('max', $any($event.target).value)"
+          min="0"
+          [max]="maxPrice"
+        />
+      </div>
+      <div class="price-display">
+        ${{ priceRange.min }} - ${{ priceRange.max }}
+      </div>
+    </div>
+  </aside>
+</div>

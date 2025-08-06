@@ -7,17 +7,63 @@
     padding: 0 20px;
   }
 
-  // Hero Section - Using #333 as primary color
+  // Hero Section with Background Image
   .hero-section {
-    background: linear-gradient(135deg, #333 0%, #555 100%);
+    position: relative;
+    min-height: 60vh;
+    display: flex;
+    align-items: center;
+    overflow: hidden;
     color: white;
-    padding: 100px 0;
-    text-align: center;
+    
+    .hero-background {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      z-index: 1;
+      
+      .hero-bg-image {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        object-position: center;
+      }
+    }
+    
+    .hero-overlay {
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(
+        135deg, 
+        rgba(51, 51, 51, 0.8) 0%, 
+        rgba(85, 85, 85, 0.9) 100%
+      );
+      z-index: 2;
+    }
+    
+    .container {
+      position: relative;
+      z-index: 3;
+    }
+    
+    .hero-content {
+      text-align: center;
+      color: white;
+      max-width: 800px;
+      margin: 0 auto;
+      padding: 80px 20px;
+    }
 
     .hero-title {
       font-size: 3.5rem;
       font-weight: 700;
       margin-bottom: 20px;
+      text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
       
       @media (max-width: 768px) {
         font-size: 2.5rem;
@@ -25,33 +71,54 @@
     }
 
     .hero-subtitle {
-      font-size: 1.2rem;
+      font-size: 1.25rem;
+      line-height: 1.6;
       margin-bottom: 50px;
+      opacity: 0.95;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
       max-width: 700px;
       margin-left: auto;
       margin-right: auto;
-      line-height: 1.6;
-      opacity: 0.9;
+      
+      @media (max-width: 768px) {
+        font-size: 1.1rem;
+        margin-bottom: 40px;
+      }
     }
 
     .hero-stats {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(150px, 1fr));
+      grid-template-columns: repeat(auto-fit, minmax(120px, 1fr));
       gap: 30px;
-      max-width: 800px;
+      max-width: 600px;
       margin: 0 auto;
 
+      @media (max-width: 480px) {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 20px;
+      }
+
       .stat {
+        text-align: center;
+
         h3 {
           font-size: 2.5rem;
           font-weight: 700;
           margin-bottom: 5px;
           color: #fff;
+          text-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+          
+          @media (max-width: 768px) {
+            font-size: 2rem;
+          }
         }
 
         p {
           font-size: 1rem;
           opacity: 0.9;
+          text-transform: uppercase;
+          letter-spacing: 0.5px;
+          font-weight: 500;
         }
       }
     }
@@ -396,7 +463,11 @@
 @media (max-width: 768px) {
   .contact-page {
     .hero-section {
-      padding: 60px 0;
+      min-height: 50vh;
+      
+      .hero-content {
+        padding: 60px 20px;
+      }
     }
 
     .contact-form-section,

@@ -10,6 +10,7 @@ export class FilterSidebarComponent implements OnInit {
   @Input() selectedCategory = '';
   @Output() filterChange = new EventEmitter<any>();
 
+  mobileFilterOpen = false;
   selectedSort = 'featured';
   priceRange = { min: 0, max: 1000 };
   maxPrice = 1000;
@@ -23,14 +24,20 @@ export class FilterSidebarComponent implements OnInit {
 
   ngOnInit() {}
 
+  toggleMobileFilter() {
+    this.mobileFilterOpen = !this.mobileFilterOpen;
+  }
+
   onCategoryChange(category: string) {
     this.selectedCategory = category;
     this.emitChanges();
+    this.closeMobileFilter();
   }
 
   onSortChange(sort: string) {
     this.selectedSort = sort;
     this.emitChanges();
+    this.closeMobileFilter();
   }
 
   onPriceChange(type: 'min' | 'max', value: string) {
@@ -52,5 +59,15 @@ export class FilterSidebarComponent implements OnInit {
       sort: this.selectedSort,
       priceRange: this.priceRange
     });
+  }
+
+  private closeMobileFilter() {
+    if (this.mobileFilterOpen) {
+      this.mobileFilterOpen = false;
+    }
+  }
+
+  ngOnDestroy() {
+    this.mobileFilterOpen = false;
   }
 }

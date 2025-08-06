@@ -17,6 +17,9 @@
     .product-overlay {
       opacity: 1;
     }
+    .favorite-overlay { // ✅ Fixed: was .favorites-overlay
+      opacity: 1;
+    }
   }
 }
 
@@ -130,6 +133,52 @@
   color: #333;
 }
 
+// ✅ FAVORITES OVERLAY STYLES - NEW SECTION
+.favorite-overlay {
+  position: absolute;
+  top: 12px;
+  right: 12px;
+  z-index: 25; // Higher than product-overlay
+  opacity: 0; // Hidden by default, shown on hover
+  transition: all 0.3s ease;
+  
+  // Style the favorites button
+  ::ng-deep app-add-to-favorites {
+    .favorites-btn {
+      background: rgba(255, 255, 255, 0.95);
+      backdrop-filter: blur(4px);
+      border-radius: 50%;
+      box-shadow: 0 2px 12px rgba(0, 0, 0, 0.2);
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      
+      &:hover {
+        background: rgba(255, 255, 255, 1);
+        transform: scale(1.1);
+        box-shadow: 0 4px 16px rgba(0, 0, 0, 0.3);
+      }
+      
+      &.is-favorite {
+        background: rgba(239, 68, 68, 0.1);
+        border-color: rgba(239, 68, 68, 0.3);
+        
+        &:hover {
+          background: rgba(239, 68, 68, 0.15);
+        }
+      }
+    }
+  }
+}
+
+// Always show if favorited
+.favorite-overlay:has(.favorites-btn.is-favorite) {
+  opacity: 1 !important;
+}
+
+// TEMPORARY: Always show hearts for testing (remove this later if you want hover-only)
+.favorite-overlay {
+  opacity: 1 !important;
+}
+
 @media (max-width: 768px) {
   .product-image {
     height: 200px;
@@ -137,5 +186,10 @@
   
   .product-details {
     padding: 12px;
+  }
+
+  .favorite-overlay {
+    top: 8px;
+    right: 8px;
   }
 }
