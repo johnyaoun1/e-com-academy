@@ -1,4 +1,3 @@
-// src/app/profile/profile.component.ts - Fixed to load real payment methods
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';

@@ -1,10 +1,8 @@
-<!-- Ultra Simple Profile Template - No ɵassertType Errors -->
 <div class="profile-page">
   <div class="container">
     <div class="profile-header">
       <div class="user-info">
         <div class="avatar">
-          <!-- Simplified img tag - no complex expressions -->
           <img [src]="getUserAvatar()" alt="User Avatar" (error)="handleAvatarError($event)">
           
           <button *ngIf="isEditing" class="avatar-edit-btn" (click)="changeAvatar()">
@@ -24,7 +22,6 @@
         </div>
       </div>
       
-      <!-- Simple input tag -->
       <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none">
     </div>
 

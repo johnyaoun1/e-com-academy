@@ -1,4 +1,3 @@
-/* product-card.component.scss */
 .product-card {
   background: white;
   border-radius: 8px;
@@ -17,7 +16,7 @@
     .product-overlay {
       opacity: 1;
     }
-    .favorite-overlay { // ✅ Fixed: was .favorites-overlay
+    .favorite-overlay { 
       opacity: 1;
     }
   }

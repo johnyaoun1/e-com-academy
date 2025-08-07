@@ -1,11 +1,10 @@
-// auth/auth.module.ts - UPDATED
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
 import { LoginComponent } from './login/login.component';
 import { SignupComponent } from './signup/signup.component';
 import { SharedModule } from '../shared/shared.module';
-import { AuthRoutingModule } from './auth-routing.module'; // Import the routing module
+import { AuthRoutingModule } from './auth-routing.module';
 
 @NgModule({
   declarations: [
@@ -16,7 +15,7 @@ import { AuthRoutingModule } from './auth-routing.module'; // Import the routing
     CommonModule,
     ReactiveFormsModule,
     SharedModule,
-    AuthRoutingModule // Use the separate routing module instead of inline routes
+    AuthRoutingModule 
   ]
 })
 export class AuthModule { }

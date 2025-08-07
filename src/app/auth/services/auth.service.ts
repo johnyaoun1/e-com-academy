@@ -94,7 +94,6 @@ export class AuthService {
     });
   }
 
-  // FIXED LOGIN METHOD
   login(username: string, password: string, loginType: 'user' | 'admin' = 'user'): Observable<User> {
     console.log('🔍 Attempting login:', { username, loginType });
     
@@ -150,7 +149,7 @@ export class AuthService {
     return of(user).pipe(delay(500));
   }
 
-  // NEW METHOD: Handle signup user login
+  // Handle signup user login
   private handleSignupUserLogin(username: string, password: string, loginType: 'user' | 'admin', signupUser: User): Observable<User> {
     console.log('🎭 Logging in with signup user account');
     
@@ -283,7 +282,7 @@ export class AuthService {
     );
   }
 
-  // UPDATED CREATE DEMO USER - Now stores users for future login
+  //stores users for future login
   private createDemoUser(userData: any): Observable<User> {
     const demoUser: User = {
       id: Math.floor(Math.random() * 1000) + 100,
@@ -308,7 +307,7 @@ export class AuthService {
     return of(demoUser).pipe(delay(500));
   }
 
-  // NEW HELPER METHODS for managing signup users
+  // managing signup users
   private saveSignupUsersToStorage(): void {
     try {
       localStorage.setItem('signupUsers', JSON.stringify(this.signupUsers));

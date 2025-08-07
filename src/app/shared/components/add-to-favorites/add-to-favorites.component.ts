@@ -1,4 +1,3 @@
-// src/app/shared/components/add-to-favorites/add-to-favorites.component.ts
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { FavoritesService } from '../../services/favorites.service';
 import { Product } from '../../services/product.service';

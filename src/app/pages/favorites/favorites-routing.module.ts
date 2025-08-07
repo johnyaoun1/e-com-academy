@@ -1,4 +1,3 @@
-// src/app/pages/favorites/favorites-routing.module.ts
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
 import { FavoritesPageComponent } from './favorites.component';

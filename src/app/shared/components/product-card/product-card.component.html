@@ -1,9 +1,7 @@
-<!-- product-card.component.html -->
 <div class="product-card" (click)="viewProduct()">
   <div class="product-image">
     <img [src]="product.image" [alt]="product.title" />
     
-    <!-- ✅ ADD FAVORITES BUTTON HERE -->
     <div class="favorite-overlay">
       <app-add-to-favorites 
         [product]="product" 

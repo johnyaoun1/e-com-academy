@@ -20,7 +20,7 @@ export interface Product {
   providedIn: 'root'
 })
 export class ProductService {
-  private apiUrl = 'https://fakestoreapi.com'; // ✅ Working API
+  private apiUrl = 'https://fakestoreapi.com'; 
   
   private productsSubject = new BehaviorSubject<Product[]>([]);
   public products$ = this.productsSubject.asObservable();

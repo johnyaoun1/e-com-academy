@@ -1,4 +1,3 @@
-// src/app/shared/services/favorites.service.ts
 import { Injectable } from '@angular/core';
 import { BehaviorSubject } from 'rxjs';
 import { Product } from './product.service';
@@ -13,7 +12,7 @@ export class FavoritesService {
   private currentUserId: string | null = null;
 
   constructor(private authService: AuthService) {
-    // ✅ Subscribe to user changes
+    //  Subscribe to user changes
     this.authService.currentUser.subscribe(user => {
       const rawUserId = user?.id || user?.email || null;
       const newUserId: string | null = rawUserId !== null ? String(rawUserId) : null;
@@ -26,7 +25,7 @@ export class FavoritesService {
   }
 
   private getUserFavoritesKey(): string {
-    // ✅ Use user-specific localStorage key
+    // Use user-specific localStorage key
     return this.currentUserId ? `favorites_${this.currentUserId}` : 'favorites_guest';
   }
 
@@ -95,18 +94,18 @@ export class FavoritesService {
     localStorage.removeItem(favoritesKey);
   }
 
-  // ✅ New method: Clear all user data on logout
+  // Clear all user data on logout
   clearUserData(): void {
     this.currentUserId = null;
     this.favoritesSubject.next([]);
   }
 
-  // ✅ New method: Get current user ID for debugging
+  // Get current user ID for debugging
   getCurrentUserId(): string | null {
     return this.currentUserId;
   }
 
-  // ✅ New method: Migrate guest favorites to logged-in user
+  // Migrate guest favorites to logged-in user
   migrateGuestFavorites(): void {
     if (!this.currentUserId) return;
 

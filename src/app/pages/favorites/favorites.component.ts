@@ -1,4 +1,3 @@
-// src/app/pages/favorites/favorites.component.ts
 import { Component, OnInit } from '@angular/core';
 import { FavoritesService } from '../../shared/services/favorites.service';
 import { Product } from '../../shared/services/product.service';
@@ -28,7 +27,6 @@ export class FavoritesPageComponent implements OnInit {
     return product.id;
   }
 
-  // ✅ Debug methods (temporary)
   getCurrentUserId(): string | null {
     return this.favoritesService.getCurrentUserId();
   }

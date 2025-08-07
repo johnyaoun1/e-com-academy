@@ -23,7 +23,7 @@ const routes: Routes = [
     loadChildren: () => import('./pages/checkout/checkout.module').then(m => m.CheckoutModule)
   },
   {
-    path: 'favorites', // ✅ MOVED UP - BEFORE WILDCARD ROUTE
+    path: 'favorites', 
     loadChildren: () => import('./pages/favorites/favorites.module').then(m => m.FavoritesModule)
   },
   {

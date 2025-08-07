@@ -1,4 +1,3 @@
-// product-card.component.ts - Updated to work with your existing cart service
 import { Component, Input, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
 import { Product } from '../../services/product.service';

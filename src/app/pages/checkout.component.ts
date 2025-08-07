@@ -1,4 +1,3 @@
-// src/app/checkout/checkout.component.ts - Fixed to save payment methods
 import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -140,7 +139,7 @@ export class CheckoutComponent implements OnInit {
     }).unsubscribe();
   }
 
-  // NEW METHOD: Save payment method to localStorage
+  // Save payment method to localStorage
   private savePaymentMethod(paymentMethod: any, userEmail: string) {
     try {
       // Get existing payment methods from localStorage

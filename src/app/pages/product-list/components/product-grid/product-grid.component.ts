@@ -1,4 +1,3 @@
-// product-grid.component.ts
 import { Component, Input } from '@angular/core';
 import { Product } from '../../../../shared/services/product.service';
 

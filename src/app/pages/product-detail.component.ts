@@ -1,4 +1,3 @@
-// product-detail.component.ts - Complete version with all functionality
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ProductService, Product } from '../shared/services/product.service';

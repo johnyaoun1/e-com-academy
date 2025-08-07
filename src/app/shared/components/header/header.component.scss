@@ -31,7 +31,6 @@
   }
 }
 
-// ✅ RESPONSIVE SEARCH SECTION
 .search-section {
   flex: 1;
   max-width: 400px;
@@ -61,7 +60,6 @@
   }
 }
 
-// ✅ MOBILE SEARCH TOGGLE/CLOSE BUTTONS
 .mobile-search-toggle,
 .mobile-search-close {
   display: none;
@@ -89,7 +87,6 @@
   }
 }
 
-// ✅ MOBILE SEARCH BAR (slides down)
 .mobile-search-bar {
   width: 100%;
   background: white;
@@ -300,7 +297,6 @@
   }
 }
 
-// ✅ FAVORITES STYLES
 .favorites-wrapper {
   .header-action-btn {
     display: flex;
@@ -364,7 +360,6 @@
   100% { transform: scale(1); }
 }
 
-// ✅ RESPONSIVE BREAKPOINTS
 @media (max-width: 1024px) {
   .nav-links {
     gap: 20px;

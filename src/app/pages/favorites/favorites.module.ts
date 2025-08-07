@@ -1,4 +1,3 @@
-// src/app/pages/favorites/favorites.module.ts
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule, Routes } from '@angular/router';

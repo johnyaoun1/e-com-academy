@@ -1,4 +1,3 @@
-// src/app/shared/components/header/header.component.ts
 import { Component, OnInit } from '@angular/core';
 import { Router } from '@angular/router';
 import { AuthService } from '../../../auth/services/auth.service';
@@ -14,7 +13,7 @@ import { map, filter } from 'rxjs/operators';
 export class HeaderComponent implements OnInit {
   currentUser$: Observable<any>;
   showUserMenu = false;
-  showMobileSearch = false; // ✅ Add this for mobile search toggle
+  showMobileSearch = false; 
   favoritesCount$!: Observable<number>;
 
   constructor(
@@ -30,7 +29,6 @@ export class HeaderComponent implements OnInit {
       map(favorites => favorites.length)
     );
 
-    // ✅ DEBUG: Log user object to see available properties
     this.currentUser$.subscribe(user => {
       console.log('🔍 FULL USER OBJECT:', user);
       console.log('🔍 User properties:', user ? Object.keys(user) : 'No user');
@@ -47,7 +45,6 @@ export class HeaderComponent implements OnInit {
       }
     });
 
-    // ✅ Migrate guest favorites when user logs in
     this.currentUser$.pipe(
       filter(user => !!user) // Only when user exists (logged in)
     ).subscribe(user => {
@@ -58,14 +55,12 @@ export class HeaderComponent implements OnInit {
     });
   }
 
-  // ✅ Desktop search handler
   onSearch(searchTerm: string): void {
     console.log('Desktop search term:', searchTerm);
     // The search bar component will handle navigation
     // You can add additional logic here if needed
   }
 
-  // ✅ Mobile search handler
   onMobileSearch(searchTerm: string): void {
     console.log('Mobile search term:', searchTerm);
     // Close mobile search after searching
@@ -78,7 +73,6 @@ export class HeaderComponent implements OnInit {
     // Handle search close if needed
   }
 
-  // ✅ Toggle mobile search
   toggleMobileSearch(): void {
     this.showMobileSearch = !this.showMobileSearch;
     // Close user menu if open
@@ -107,7 +101,6 @@ export class HeaderComponent implements OnInit {
   logout() {
     this.showUserMenu = false;
     
-    // ✅ Clear user-specific favorites data
     this.favoritesService.clearUserData();
     
     this.authService.logout();
@@ -116,7 +109,7 @@ export class HeaderComponent implements OnInit {
   // Close menu when clicking outside
   onClickOutside() {
     this.showUserMenu = false;
-    this.showMobileSearch = false; // ✅ Also close mobile search
+    this.showMobileSearch = false; 
   }
 
   navigateToFavorites(): void {

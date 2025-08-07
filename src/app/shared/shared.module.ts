@@ -26,7 +26,7 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     SearchBarComponent,
     CurrencyFormatPipe,
     CartHeaderComponent,
-    AddToFavoritesComponent, // ✅ Add this
+    AddToFavoritesComponent, 
     TruncatePipe,
     LazyLoadDirective
   ],
@@ -46,7 +46,7 @@ import { LazyLoadDirective } from './directives/lazy-load.directive';
     FooterComponent,
     ProductCardComponent,
     SearchBarComponent,
-    AddToFavoritesComponent, // ✅ Add this
+    AddToFavoritesComponent, 
     CurrencyFormatPipe,
     TruncatePipe,
     LazyLoadDirective

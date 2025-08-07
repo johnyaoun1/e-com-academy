@@ -1,4 +1,3 @@
-// src/app/pages/profile/profile.module.ts
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule, FormsModule } from '@angular/forms';
@@ -13,10 +12,10 @@ import { SharedModule } from '../../shared/shared.module';
   ],
   imports: [
     CommonModule,
-    ReactiveFormsModule, // ✅ For formGroup
-    FormsModule,         // ✅ For ngModel
+    ReactiveFormsModule, 
+    FormsModule,         
     ProfileRoutingModule,
     SharedModule
   ]
 })
-export class ProfileModule { } // ✅ Make sure this export exists
+export class ProfileModule { } 

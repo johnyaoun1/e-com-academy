@@ -10,7 +10,6 @@ export class AboutComponent implements OnInit {
   constructor() { }
 
   ngOnInit(): void {
-    // Add scroll animations or other interactive features here if needed
   }
 
 }

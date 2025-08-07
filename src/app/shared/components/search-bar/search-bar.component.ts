@@ -1,4 +1,3 @@
-// src/app/shared/components/search-bar/search-bar.component.ts
 import { Component, EventEmitter, Output } from '@angular/core';
 import { Router } from '@angular/router';
 
