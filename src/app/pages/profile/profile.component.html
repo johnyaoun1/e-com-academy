@@ -173,10 +173,7 @@
             <div class="orders-filter">
               <select [(ngModel)]="orderFilter" (change)="filterOrders()">
                 <option value="all">All Orders</option>
-                <option value="processing">Processing</option>
-                <option value="shipped">Shipped</option>
-                <option value="delivered">Delivered</option>
-                <option value="cancelled">Cancelled</option>
+              
               </select>
             </div>
           </div>
@@ -244,9 +241,7 @@
         <div *ngIf="activeTab === 'payment' && !loading" class="profile-section">
           <div class="section-header">
             <h2>Payment Methods</h2>
-            <button class="add-btn" (click)="addPaymentMethod()">
-              <i class="fas fa-plus"></i> Add Payment Method
-            </button>
+           
           </div>
           
           <div class="payment-methods" *ngIf="hasPaymentMethods()">

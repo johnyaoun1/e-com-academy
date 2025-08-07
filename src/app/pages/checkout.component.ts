@@ -1,31 +1,22 @@
-// src/app/checkout/checkout.component.ts - Fixed for your User interface
-import { Component, OnInit, OnDestroy } from '@angular/core';
+// src/app/checkout/checkout.component.ts - Fixed to save payment methods
+import { Component, OnInit } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
-import { CartService, CartItem } from '../shared/services/cart.service';
-import { OrderService, Order, OrderItem } from '../shared/services/order.service';
+import { CartService } from '../shared/services/cart.service';
+import { OrderService } from '../shared/services/order.service';
 import { AuthService } from '../auth/services/auth.service';
-import { Observable, Subscription } from 'rxjs';
-import { take } from 'rxjs/operators';
 
 @Component({
   selector: 'app-checkout',
   templateUrl: './checkout.component.html',
   styleUrls: ['./checkout.component.scss']
 })
-export class CheckoutComponent implements OnInit, OnDestroy {
-  checkoutForm!: FormGroup;
-  cartItems$!: Observable<CartItem[]>;
+export class CheckoutComponent implements OnInit {
+  checkoutForm: FormGroup;
   cartTotal = 0;
-  currentStep = 1;
   isProcessing = false;
-  stockErrors: string[] = [];
-  
-  // Payment success modal state
   showSuccessModal = false;
   orderDetails: any = null;
-
-  private cartSubscription!: Subscription;
 
   constructor(
     private fb: FormBuilder,
@@ -33,125 +24,87 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     private orderService: OrderService,
     private authService: AuthService,
     private router: Router
-  ) {}
+  ) {
+    this.checkoutForm = this.fb.group({
+      firstName: ['', Validators.required],
+      lastName: ['', Validators.required],
+      email: ['', [Validators.required, Validators.email]],
+      phone: ['', Validators.required],
+      address: ['', Validators.required],
+      city: ['', Validators.required],
+      state: ['', Validators.required],
+      zipCode: ['', Validators.required],
+      cardNumber: ['4242424242424242', Validators.required],
+      cardName: ['', Validators.required],
+      expiryDate: ['12/25', Validators.required],
+      cvv: ['123', Validators.required],
+      savePaymentMethod: [true] // Add checkbox to save payment method
+    });
+  }
 
   ngOnInit() {
-    this.cartItems$ = this.cartService.cartItems$;
-    this.cartSubscription = this.cartService.cartItems$.subscribe(() => {
-      this.cartTotal = this.cartService.getCartTotal();
-      this.checkStockAvailability();
-    });
-
-    this.initForm();
+    this.cartTotal = this.cartService.getCartTotal();
     this.prefillUserData();
   }
 
-  ngOnDestroy() {
-    if (this.cartSubscription) {
-      this.cartSubscription.unsubscribe();
-    }
-  }
-
-  initForm() {
-    this.checkoutForm = this.fb.group({
-      // Shipping Information
-      shipping: this.fb.group({
-        firstName: ['', Validators.required],
-        lastName: ['', Validators.required],
-        email: ['', [Validators.required, Validators.email]],
-        phone: ['', Validators.required],
-        address: ['', Validators.required],
-        city: ['', Validators.required],
-        state: ['', Validators.required],
-        zipCode: ['', Validators.required],
-        country: ['', Validators.required]
-      }),
-      // Payment Information
-      payment: this.fb.group({
-        cardNumber: ['4242424242424242', [Validators.required, Validators.pattern(/^\d{16}$/)]],
-        cardName: ['', Validators.required],
-        expiryDate: ['12/25', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)]],
-        cvv: ['123', [Validators.required, Validators.pattern(/^\d{3,4}$/)]]
-      })
-    });
-  }
-
   prefillUserData() {
-    // Prefill with current user data if available - FIXED property names
     const currentUser = this.authService.currentUserValue;
     if (currentUser) {
       this.checkoutForm.patchValue({
-        shipping: {
-          firstName: currentUser.firstname || '', // Fixed: using 'firstname' not 'firstName'
-          lastName: currentUser.lastname || '',   // Fixed: using 'lastname' not 'lastName'
-          email: currentUser.email || ''
-        },
-        payment: {
-          cardName: `${currentUser.firstname || ''} ${currentUser.lastname || ''}`.trim() // Fixed: using correct property names
-        }
+        firstName: currentUser.firstname || '',
+        lastName: currentUser.lastname || '',
+        email: currentUser.email || '',
+        cardName: `${currentUser.firstname || ''} ${currentUser.lastname || ''}`.trim()
       });
     }
   }
 
-  private checkStockAvailability(): void {
-    this.stockErrors = [];
-    // Add your stock check logic here if needed
-  }
-
-  nextStep() {
-    if (this.currentStep === 1 && this.checkoutForm.get('shipping')?.valid) {
-      this.currentStep = 2;
-    }
-  }
-
-  previousStep() {
-    if (this.currentStep > 1) {
-      this.currentStep--;
-    }
-  }
-
-  canPlaceOrder(): boolean {
-    return this.checkoutForm.valid && this.stockErrors.length === 0 && !this.isProcessing;
-  }
-
   placeOrder() {
-    if (!this.canPlaceOrder()) {
+    if (this.checkoutForm.invalid || this.isProcessing) {
       return;
     }
 
     this.isProcessing = true;
-    const shippingInfo = this.checkoutForm.value.shipping;
-    const paymentInfo = this.checkoutForm.value.payment;
+    const formValue = this.checkoutForm.value;
 
-    // Get current user for the order
-    const currentUser = this.authService.currentUserValue;
-    const userEmail = currentUser?.email || shippingInfo.email;
-
-    this.cartService.cartItems$.pipe(take(1)).subscribe((cartItems: CartItem[]) => {
+    // Get cart items
+    this.cartService.cartItems$.subscribe(cartItems => {
       const orderId = Date.now();
-      const taxAmount = this.cartTotal * 0.08;
-      const totalWithTax = this.cartTotal + taxAmount;
-      
-      // Create order using your existing Order interface
-      const order: Order = {
+      const tax = this.cartTotal * 0.08;
+      const total = this.cartTotal + tax;
+
+      // Create payment method object
+      const paymentMethod = {
+        id: Date.now().toString(),
+        type: this.getCardType(formValue.cardNumber).toLowerCase() as 'visa' | 'mastercard' | 'amex' | 'paypal',
+        cardNumber: formValue.cardNumber,
+        lastFour: formValue.cardNumber.slice(-4),
+        expiryMonth: formValue.expiryDate.split('/')[0],
+        expiryYear: formValue.expiryDate.split('/')[1],
+        holderName: formValue.cardName,
+        isDefault: false
+      };
+
+      // Create order
+      const order = {
         id: orderId,
-        customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-        email: userEmail,
-        total: totalWithTax,
+        customerName: `${formValue.firstName} ${formValue.lastName}`,
+        email: formValue.email,
+        total: total,
         date: new Date().toISOString(),
-        status: 'Processing',
+        status: 'Processing' as const,
         shippingAddress: {
-          address: shippingInfo.address,
-          city: shippingInfo.city,
-          state: shippingInfo.state,
-          zipCode: shippingInfo.zipCode,
-          country: shippingInfo.country
+          address: formValue.address,
+          city: formValue.city,
+          state: formValue.state,
+          zipCode: formValue.zipCode,
+          country: 'US'
         },
         paymentMethod: {
-          cardLast4: paymentInfo.cardNumber.slice(-4),
-          cardType: this.getCardType(paymentInfo.cardNumber)
+          cardLast4: formValue.cardNumber.slice(-4),
+          cardType: this.getCardType(formValue.cardNumber)
         },
-        items: cartItems.map((item: CartItem): OrderItem => ({
+        items: cartItems.map(item => ({
           productId: item.product.id,
           name: item.product.title,
           quantity: item.quantity,
@@ -160,38 +113,77 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         }))
       };
 
-      // Save order details for the modal
+      // Save order details for modal
       this.orderDetails = {
         orderId: orderId,
-        total: totalWithTax,
-        subtotal: this.cartTotal,
-        tax: taxAmount,
+        total: total,
         customerName: order.customerName,
-        email: userEmail,
+        email: formValue.email,
         itemCount: cartItems.length,
-        paymentMethod: order.paymentMethod,
-        estimatedDelivery: this.getEstimatedDelivery(),
-        items: order.items
+        paymentMethod: paymentMethod
       };
 
-      // Simulate payment processing delay
+      // Simulate processing time
       setTimeout(() => {
-        // Add order using your existing OrderService
+        // Save the order
         this.orderService.addOrder(order);
 
-        // Show success modal
+        // Save payment method if user checked the option
+        if (formValue.savePaymentMethod) {
+          this.savePaymentMethod(paymentMethod, formValue.email);
+        }
+
         this.showSuccessModal = true;
         this.isProcessing = false;
-
-        // Clear cart after short delay
-        setTimeout(() => {
-          this.cartService.clearCart();
-        }, 500);
-      }, 2000); // 2 second delay to simulate payment processing
-    });
+        this.cartService.clearCart();
+      }, 2000);
+    }).unsubscribe();
   }
 
-  // Modal control methods
+  // NEW METHOD: Save payment method to localStorage
+  private savePaymentMethod(paymentMethod: any, userEmail: string) {
+    try {
+      // Get existing payment methods from localStorage
+      const existingMethods = JSON.parse(localStorage.getItem('paymentMethods') || '[]');
+      
+      // Check if this card already exists for this user
+      const cardExists = existingMethods.some((method: any) => 
+        method.userEmail === userEmail && method.lastFour === paymentMethod.lastFour
+      );
+
+      if (!cardExists) {
+        // Add user email to payment method for filtering
+        const methodWithUser = {
+          ...paymentMethod,
+          userEmail: userEmail,
+          dateAdded: new Date().toISOString()
+        };
+
+        // If this is the user's first payment method, make it default
+        const userMethods = existingMethods.filter((method: any) => method.userEmail === userEmail);
+        if (userMethods.length === 0) {
+          methodWithUser.isDefault = true;
+        }
+
+        existingMethods.push(methodWithUser);
+        localStorage.setItem('paymentMethods', JSON.stringify(existingMethods));
+        
+        console.log('✅ Payment method saved:', methodWithUser);
+      }
+    } catch (error) {
+      console.error('❌ Error saving payment method:', error);
+    }
+  }
+
+  getCardType(cardNumber: string): string {
+    const cleanNumber = cardNumber.replace(/\D/g, '');
+    if (cleanNumber.startsWith('4')) return 'Visa';
+    if (cleanNumber.startsWith('5') || cleanNumber.startsWith('2')) return 'Mastercard';
+    if (cleanNumber.startsWith('34') || cleanNumber.startsWith('37')) return 'American Express';
+    if (cleanNumber.startsWith('6')) return 'Discover';
+    return 'Card';
+  }
+
   closeSuccessModal() {
     this.showSuccessModal = false;
     this.router.navigate(['/products']);
@@ -199,60 +191,11 @@ export class CheckoutComponent implements OnInit, OnDestroy {
 
   goToProfile() {
     this.showSuccessModal = false;
-    this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
+    this.router.navigate(['/profile'], { queryParams: { tab: 'payment' } });
   }
 
   continueShopping() {
     this.showSuccessModal = false;
     this.router.navigate(['/products']);
-  }
-
-  viewOrderDetails() {
-    this.showSuccessModal = false;
-    this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
-  }
-
-  private getCardType(cardNumber: string): string {
-    const cleanedNumber = cardNumber.replace(/\D/g, '');
-    
-    if (cleanedNumber.length === 0) return 'Unknown';
-    
-    // Basic card type detection
-    if (cleanedNumber.startsWith('4')) return 'Visa';
-    if (cleanedNumber.startsWith('5')) return 'Mastercard';
-    if (cleanedNumber.startsWith('3')) return 'American Express';
-    
-    return 'Generic Card';
-  }
-
-  private getEstimatedDelivery(): string {
-    const deliveryDate = new Date();
-    deliveryDate.setDate(deliveryDate.getDate() + 3); // 3 days from now
-    return deliveryDate.toLocaleDateString('en-US', { 
-      weekday: 'long', 
-      year: 'numeric', 
-      month: 'long', 
-      day: 'numeric' 
-    });
-  }
-
-  // Utility methods for form validation display
-  isFieldInvalid(fieldPath: string): boolean {
-    const field = this.checkoutForm.get(fieldPath);
-    return !!(field && field.invalid && field.touched);
-  }
-
-  getFieldError(fieldPath: string): string {
-    const field = this.checkoutForm.get(fieldPath);
-    if (field && field.invalid && field.touched) {
-      if (field.errors?.['required']) return 'This field is required';
-      if (field.errors?.['email']) return 'Please enter a valid email';
-      if (field.errors?.['pattern']) {
-        if (fieldPath.includes('cardNumber')) return 'Please enter a valid 16-digit card number';
-        if (fieldPath.includes('expiryDate')) return 'Please use MM/YY format';
-        if (fieldPath.includes('cvv')) return 'Please enter a valid CVV';
-      }
-    }
-    return '';
   }
 }

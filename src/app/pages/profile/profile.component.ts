@@ -1,4 +1,4 @@
-// src/app/profile/profile.component.ts - Ultra Simple Version
+// src/app/profile/profile.component.ts - Fixed to load real payment methods
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
@@ -29,6 +29,8 @@ export interface PaymentMethod {
   expiryYear: string;
   holderName: string;
   isDefault: boolean;
+  userEmail?: string;
+  dateAdded?: string;
 }
 
 @Component({
@@ -176,7 +178,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
   loadRealData(): void {
     this.loading = true;
     this.loadUserOrders();
-    this.loadMockPaymentMethods();
+    this.loadRealPaymentMethods();
     this.loading = false;
   }
 
@@ -200,6 +202,39 @@ export class ProfileComponent implements OnInit, OnDestroy {
           this.filteredOrders = [];
         }
       });
+  }
+
+  // Load real payment methods from localStorage
+  loadRealPaymentMethods(): void {
+    try {
+      const userEmail = this.user?.email;
+      if (!userEmail) {
+        console.log('No user email found, loading empty payment methods');
+        this.paymentMethods = [];
+        return;
+      }
+
+      // Get all payment methods from localStorage
+      const allPaymentMethods = JSON.parse(localStorage.getItem('paymentMethods') || '[]');
+      console.log('All payment methods from localStorage:', allPaymentMethods);
+
+      // Filter payment methods for current user
+      this.paymentMethods = allPaymentMethods.filter((method: any) => 
+        method.userEmail === userEmail
+      );
+
+      console.log(`✅ Loaded ${this.paymentMethods.length} payment methods for user: ${userEmail}`);
+      console.log('User payment methods:', this.paymentMethods);
+
+      // If no payment methods found, show a helpful message
+      if (this.paymentMethods.length === 0) {
+        console.log('💡 No payment methods found. User can add them during checkout.');
+      }
+
+    } catch (error) {
+      console.error('❌ Error loading payment methods:', error);
+      this.paymentMethods = [];
+    }
   }
 
   filterOrders(): void {
@@ -315,6 +350,9 @@ export class ProfileComponent implements OnInit, OnDestroy {
     
     if (tab === 'orders') {
       this.loadUserOrders();
+    } else if (tab === 'payment') {
+      // 🔥 ADDED: Reload payment methods when switching to payment tab
+      this.loadRealPaymentMethods();
     }
   }
 
@@ -356,20 +394,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  loadMockPaymentMethods(): void {
-    const fullName = `${this.user?.firstName || 'John'} ${this.user?.lastName || 'Doe'}`;
-    this.paymentMethods = [
-      {
-        id: '1',
-        type: 'visa',
-        lastFour: '1234',
-        expiryMonth: '12',
-        expiryYear: '25',
-        holderName: fullName,
-        isDefault: true
-      }
-    ];
-  }
+  // 🔥 REMOVED: loadMockPaymentMethods() - we're using real ones now!
 
   triggerFileInput(): void {
     if (this.fileInput) {
@@ -433,18 +458,55 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.showSuccess('Edit payment method form would open here');
   }
 
+  // 🔥 UPDATED: Remove payment method from localStorage
   removePaymentMethod(id: string): void {
     if (confirm('Are you sure you want to remove this payment method?')) {
-      this.paymentMethods = this.paymentMethods.filter(pm => pm.id !== id);
-      this.showSuccess('Payment method removed successfully!');
+      try {
+        // Remove from local array
+        this.paymentMethods = this.paymentMethods.filter(pm => pm.id !== id);
+        
+        // Update localStorage
+        const allPaymentMethods = JSON.parse(localStorage.getItem('paymentMethods') || '[]');
+        const updatedMethods = allPaymentMethods.filter((method: any) => method.id !== id);
+        localStorage.setItem('paymentMethods', JSON.stringify(updatedMethods));
+        
+        console.log('✅ Payment method removed:', id);
+        this.showSuccess('Payment method removed successfully!');
+        
+        // If we removed the default payment method, make another one default
+        if (this.paymentMethods.length > 0 && !this.paymentMethods.some(pm => pm.isDefault)) {
+          this.setDefaultPayment(this.paymentMethods[0].id);
+        }
+      } catch (error) {
+        console.error('❌ Error removing payment method:', error);
+        this.error = 'Failed to remove payment method';
+      }
     }
   }
 
+  // Update default payment method in localStorage
   setDefaultPayment(id: string): void {
-    this.paymentMethods.forEach(pm => {
-      pm.isDefault = pm.id === id;
-    });
-    this.showSuccess('Default payment method updated!');
+    try {
+      // Update local array
+      this.paymentMethods.forEach(pm => {
+        pm.isDefault = pm.id === id;
+      });
+      
+      // Update localStorage
+      const allPaymentMethods = JSON.parse(localStorage.getItem('paymentMethods') || '[]');
+      allPaymentMethods.forEach((method: any) => {
+        if (method.userEmail === this.user?.email) {
+          method.isDefault = method.id === id;
+        }
+      });
+      localStorage.setItem('paymentMethods', JSON.stringify(allPaymentMethods));
+      
+      console.log('✅ Default payment method updated:', id);
+      this.showSuccess('Default payment method updated!');
+    } catch (error) {
+      console.error('❌ Error updating default payment method:', error);
+      this.error = 'Failed to update default payment method';
+    }
   }
 
   getCardIcon(type: string): string {
