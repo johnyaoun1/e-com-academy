@@ -1,6 +1,14 @@
-<div class="product-card" (click)="viewProduct()">
+<!-- src/app/shared/components/product-card/product-card.component.html -->
+
+<div class="product-card" (click)="viewProduct()" [attr.data-product-id]="product.id">
   <div class="product-image">
     <img [src]="product.image" [alt]="product.title" />
+    
+    <!-- Cart Badge (if in cart) -->
+    <div *ngIf="currentIsInCart" class="cart-badge">
+      <i class="fas fa-check-circle"></i>
+      {{ currentCartQuantity }}
+    </div>
     
     <div class="favorite-overlay">
       <app-add-to-favorites 
@@ -14,9 +22,40 @@
       <button class="quick-view-btn" (click)="quickView($event)">
         <i class="fas fa-eye"></i>
       </button>
-      <button class="add-to-cart-btn" (click)="addToCart($event)">
-        <i class="fas fa-shopping-cart"></i>
+      
+      <!-- Add to Cart Button (when not in cart) -->
+      <button 
+        *ngIf="!currentIsInCart"
+        class="add-to-cart-btn" 
+        [class.loading]="isAddingToCart"
+        (click)="onAddToCart($event)"
+        [disabled]="isAddingToCart">
+        <i *ngIf="!isAddingToCart" class="fas fa-shopping-cart"></i>
+        <i *ngIf="isAddingToCart" class="fas fa-spinner fa-spin"></i>
       </button>
+      
+      <!-- Cart Controls (when in cart) -->
+      <div *ngIf="currentIsInCart" class="cart-controls" (click)="$event.stopPropagation()">
+        <button 
+          class="cart-control-btn decrease"
+          (click)="onUpdateQuantity($event, -1)">
+          <i class="fas fa-minus"></i>
+        </button>
+        
+        <span class="quantity">{{ currentCartQuantity }}</span>
+        
+        <button 
+          class="cart-control-btn increase"
+          (click)="onUpdateQuantity($event, 1)">
+          <i class="fas fa-plus"></i>
+        </button>
+        
+        <button 
+          class="cart-control-btn remove"
+          (click)="onRemoveFromCart($event)">
+          <i class="fas fa-trash"></i>
+        </button>
+      </div>
     </div>
   </div>
   

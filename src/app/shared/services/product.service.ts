@@ -59,9 +59,19 @@ export class ProductService {
     );
   }
 
-  getSimilarProducts(product: Product): Observable<Product[]> {
-    return this.getProductsByCategory(product.category).pipe(
-      map(products => products.filter(p => p.id !== product.id).slice(0, 4))
-    );
-  }
+
+getSimilarProducts(product: Product): Observable<Product[]> {
+  console.log('🔍 ProductService - Getting similar products for:', product.title);
+  
+  return this.getAllProducts().pipe(
+    map(products => {
+      const similar = products
+        .filter(p => p.category === product.category && p.id !== product.id)
+        .slice(0, 6);
+      
+      console.log('🔍 ProductService - Found similar products:', similar.length);
+      return similar;
+    })
+  );
+}
 }

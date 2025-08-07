@@ -9,7 +9,8 @@ import { FooterComponent } from './components/footer/footer.component';
 import { ProductCardComponent } from './components/product-card/product-card.component';
 import { SearchBarComponent } from './components/search-bar/search-bar.component';
 import { CartHeaderComponent } from './components/cart-header/cart-header.component';
-import { AddToFavoritesComponent } from './components/add-to-favorites/add-to-favorites.component'; // ✅ Add this
+import { AddToFavoritesComponent } from './components/add-to-favorites/add-to-favorites.component'; 
+
 
 // Pipes
 import { CurrencyFormatPipe } from './pipes/currency-format.pipe';

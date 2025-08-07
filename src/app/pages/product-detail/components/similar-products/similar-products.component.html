@@ -1,9 +1,39 @@
+<!-- src/app/shared/components/similar-products/similar-products.component.html -->
+
 <section class="similar-products" *ngIf="products && products.length > 0">
   <h2>You May Also Like</h2>
+  
+  <!-- 🔍 DEBUG: Show what we're receiving -->
+  <div style="background: #f0f0f0; padding: 10px; margin: 10px 0; font-size: 12px;">
+    DEBUG: Showing {{ products.length }} products
+  </div>
+  
   <div class="products-grid">
     <app-product-card 
-      *ngFor="let product of products" 
-      [product]="product">
+      *ngFor="let product of products; trackBy: trackByProductId" 
+      [product]="product"
+      [isInCart]="isProductInCart(product)"
+      [cartQuantity]="getProductCartQuantity(product)"
+      (addToCart)="onAddToCart(product)"
+      (removeFromCart)="onRemoveFromCart(product)"
+      (updateCartQuantity)="onUpdateCartQuantity(product, $event)">
     </app-product-card>
+  </div>
+</section>
+
+<!-- Loading state -->
+<section class="similar-products" *ngIf="!products">
+  <div class="loading">
+    <i class="fas fa-spinner fa-spin"></i>
+    Loading similar products...
+  </div>
+</section>
+
+<!-- Empty state -->
+<section class="similar-products" *ngIf="products && products.length === 0">
+  <div class="empty-state">
+    <h2>No Similar Products Found</h2>
+    <p>Explore our full collection to discover more great products</p>
+    <a href="/products" class="browse-all-btn">Browse All Products</a>
   </div>
 </section>

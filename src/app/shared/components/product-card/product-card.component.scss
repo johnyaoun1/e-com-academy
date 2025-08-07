@@ -1,3 +1,5 @@
+// src/app/shared/components/product-card/product-card.component.scss
+
 .product-card {
   background: white;
   border-radius: 8px;
@@ -20,6 +22,17 @@
       opacity: 1;
     }
   }
+
+  // Animation for add to cart feedback
+  &.added-to-cart {
+    animation: addToCartPulse 0.6s ease-out;
+  }
+}
+
+@keyframes addToCartPulse {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.05); }
+  100% { transform: scale(1); }
 }
 
 .product-image {
@@ -34,6 +47,26 @@
     object-fit: contain;
     padding: 20px;
     background: white;
+  }
+
+  .cart-badge {
+    position: absolute;
+    top: 10px;
+    left: 10px;
+    background: #28a745;
+    color: white;
+    padding: 4px 8px;
+    border-radius: 12px;
+    font-size: 12px;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    z-index: 30;
+
+    i {
+      font-size: 10px;
+    }
   }
 }
 
@@ -50,6 +83,7 @@
   gap: 10px;
   opacity: 0;
   transition: opacity 0.3s;
+  z-index: 20;
 }
 
 .quick-view-btn, .add-to-cart-btn {
@@ -62,10 +96,70 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: background-color 0.3s;
+  transition: all 0.3s;
 
   &:hover {
     background: #f0f0f0;
+    transform: scale(1.1);
+  }
+
+  &:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+  }
+
+  &.loading {
+    pointer-events: none;
+  }
+}
+
+.cart-controls {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(255, 255, 255, 0.95);
+  padding: 8px 12px;
+  border-radius: 20px;
+  backdrop-filter: blur(4px);
+
+  .cart-control-btn {
+    background: #f8f9fa;
+    border: 1px solid #ddd;
+    border-radius: 50%;
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.3s;
+
+    &:hover {
+      background: #e9ecef;
+      transform: scale(1.1);
+    }
+
+    &.remove {
+      background: #dc3545;
+      border-color: #dc3545;
+      color: white;
+
+      &:hover {
+        background: #c82333;
+      }
+    }
+
+    i {
+      font-size: 10px;
+    }
+  }
+
+  .quantity {
+    font-weight: 600;
+    font-size: 14px;
+    min-width: 20px;
+    text-align: center;
+    color: #333;
   }
 }
 
@@ -190,5 +284,15 @@
   .favorite-overlay {
     top: 8px;
     right: 8px;
+  }
+
+  .cart-controls {
+    padding: 6px 10px;
+    gap: 6px;
+
+    .cart-control-btn {
+      width: 24px;
+      height: 24px;
+    }
   }
 }
