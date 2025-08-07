@@ -1,4 +1,6 @@
+// src/app/shared/components/search-bar/search-bar.component.ts
 import { Component, EventEmitter, Output } from '@angular/core';
+import { Router } from '@angular/router';
 
 @Component({
   selector: 'app-search-bar',
@@ -11,14 +13,26 @@ export class SearchBarComponent {
   
   searchQuery = '';
 
+  constructor(private router: Router) {}
+
   onSearch() {
     if (this.searchQuery.trim()) {
+      console.log('Searching for:', this.searchQuery);
+      
+      // Navigate to products page with search query
+      this.router.navigate(['/products'], {
+        queryParams: { search: this.searchQuery.trim() }
+      });
+      
+      // Emit the search event
       this.search.emit(this.searchQuery);
-      this.searchQuery = '';
+      
+      // Don't clear the search query so user can see what they searched for
     }
   }
 
   onClose() {
+    this.searchQuery = '';
     this.close.emit();
   }
 }

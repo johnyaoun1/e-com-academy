@@ -14,6 +14,7 @@ import { map, filter } from 'rxjs/operators';
 export class HeaderComponent implements OnInit {
   currentUser$: Observable<any>;
   showUserMenu = false;
+  showMobileSearch = false; // ✅ Add this for mobile search toggle
   favoritesCount$!: Observable<number>;
 
   constructor(
@@ -57,8 +58,41 @@ export class HeaderComponent implements OnInit {
     });
   }
 
+  // ✅ Desktop search handler
+  onSearch(searchTerm: string): void {
+    console.log('Desktop search term:', searchTerm);
+    // The search bar component will handle navigation
+    // You can add additional logic here if needed
+  }
+
+  // ✅ Mobile search handler
+  onMobileSearch(searchTerm: string): void {
+    console.log('Mobile search term:', searchTerm);
+    // Close mobile search after searching
+    this.showMobileSearch = false;
+    // The search bar component will handle navigation
+  }
+
+  onSearchClose(): void {
+    console.log('Search closed');
+    // Handle search close if needed
+  }
+
+  // ✅ Toggle mobile search
+  toggleMobileSearch(): void {
+    this.showMobileSearch = !this.showMobileSearch;
+    // Close user menu if open
+    if (this.showMobileSearch) {
+      this.showUserMenu = false;
+    }
+  }
+
   toggleUserMenu() {
     this.showUserMenu = !this.showUserMenu;
+    // Close mobile search if open
+    if (this.showUserMenu) {
+      this.showMobileSearch = false;
+    }
   }
 
   goToProfile() {
@@ -82,6 +116,7 @@ export class HeaderComponent implements OnInit {
   // Close menu when clicking outside
   onClickOutside() {
     this.showUserMenu = false;
+    this.showMobileSearch = false; // ✅ Also close mobile search
   }
 
   navigateToFavorites(): void {

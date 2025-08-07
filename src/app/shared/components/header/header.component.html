@@ -2,6 +2,11 @@
   <nav class="nav">
     <div class="logo" routerLink="/">InMind</div>
     
+    <!-- ✅ Desktop Search Section -->
+    <div class="search-section">
+      <app-search-bar (search)="onSearch($event)" (close)="onSearchClose()"></app-search-bar>
+    </div>
+    
     <ul class="nav-links">
       <li><a routerLink="/products">SHOP</a></li>
       <li><a routerLink="/about">ABOUT US</a></li>
@@ -9,7 +14,17 @@
     </ul>
     
     <div class="nav-icons">
-      <!-- ✅ Add Favorites Button Here -->
+      <!-- ✅ Mobile Search Toggle (shows only on mobile) -->
+      <button class="mobile-search-toggle" (click)="toggleMobileSearch()" *ngIf="!showMobileSearch">
+        <i class="fas fa-search"></i>
+      </button>
+      
+      <!-- ✅ Mobile Search Close (shows when mobile search is open) -->
+      <button class="mobile-search-close" (click)="toggleMobileSearch()" *ngIf="showMobileSearch">
+        <i class="fas fa-times"></i>
+      </button>
+      
+      <!-- ✅ Favorites Button -->
       <div class="favorites-wrapper">
         <button 
           class="header-action-btn favorites-btn" 
@@ -64,7 +79,6 @@
             <i class="fas fa-shopping-cart"></i>
             My Cart
           </button>
-          <!-- ✅ Add Favorites to User Menu -->
           <button class="menu-item" (click)="navigateToFavorites(); showUserMenu = false">
             <i class="fas fa-heart"></i>
             My Favorites
@@ -90,6 +104,12 @@
     </div>
   </nav>
   
-  <div class="backdrop" [class.show]="showUserMenu" (click)="onClickOutside()"></div>
+  <!-- ✅ Mobile Search Bar (slides down when toggled) -->
+  <div class="mobile-search-bar" [class.active]="showMobileSearch">
+    <div class="mobile-search-content">
+      <app-search-bar (search)="onMobileSearch($event)" (close)="toggleMobileSearch()"></app-search-bar>
+    </div>
+  </div>
   
+  <div class="backdrop" [class.show]="showUserMenu" (click)="onClickOutside()"></div>
 </header>
