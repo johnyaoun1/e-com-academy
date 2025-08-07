@@ -26,19 +26,17 @@
               <div class="form-group">
                 <label>First Name *</label>
                 <input type="text" formControlName="firstName" class="form-control"
-                       [class.is-invalid]="checkoutForm.get('shipping.firstName')?.invalid && checkoutForm.get('shipping.firstName')?.touched">
-                <div *ngIf="checkoutForm.get('shipping.firstName')?.invalid && checkoutForm.get('shipping.firstName')?.touched"
-                     class="invalid-feedback">
-                  Please enter your first name
+                       [class.is-invalid]="isFieldInvalid('shipping.firstName')">
+                <div *ngIf="isFieldInvalid('shipping.firstName')" class="invalid-feedback">
+                  {{ getFieldError('shipping.firstName') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>Last Name *</label>
                 <input type="text" formControlName="lastName" class="form-control"
-                       [class.is-invalid]="checkoutForm.get('shipping.lastName')?.invalid && checkoutForm.get('shipping.lastName')?.touched">
-                <div *ngIf="checkoutForm.get('shipping.lastName')?.invalid && checkoutForm.get('shipping.lastName')?.touched"
-                     class="invalid-feedback">
-                  Please enter your last name
+                       [class.is-invalid]="isFieldInvalid('shipping.lastName')">
+                <div *ngIf="isFieldInvalid('shipping.lastName')" class="invalid-feedback">
+                  {{ getFieldError('shipping.lastName') }}
                 </div>
               </div>
             </div>
@@ -46,34 +44,27 @@
             <div class="form-group">
               <label>Email *</label>
               <input type="email" formControlName="email" class="form-control"
-                     [class.is-invalid]="checkoutForm.get('shipping.email')?.invalid && checkoutForm.get('shipping.email')?.touched">
-              <div *ngIf="checkoutForm.get('shipping.email')?.errors?.['required'] && checkoutForm.get('shipping.email')?.touched"
-                   class="invalid-feedback">
-                Please enter your email
-              </div>
-              <div *ngIf="checkoutForm.get('shipping.email')?.errors?.['email'] && checkoutForm.get('shipping.email')?.touched"
-                   class="invalid-feedback">
-                Please enter a valid email
+                     [class.is-invalid]="isFieldInvalid('shipping.email')">
+              <div *ngIf="isFieldInvalid('shipping.email')" class="invalid-feedback">
+                {{ getFieldError('shipping.email') }}
               </div>
             </div>
 
             <div class="form-group">
               <label>Phone *</label>
               <input type="tel" formControlName="phone" class="form-control"
-                     [class.is-invalid]="checkoutForm.get('shipping.phone')?.invalid && checkoutForm.get('shipping.phone')?.touched">
-              <div *ngIf="checkoutForm.get('shipping.phone')?.invalid && checkoutForm.get('shipping.phone')?.touched"
-                   class="invalid-feedback">
-                Please enter your phone number
+                     [class.is-invalid]="isFieldInvalid('shipping.phone')">
+              <div *ngIf="isFieldInvalid('shipping.phone')" class="invalid-feedback">
+                {{ getFieldError('shipping.phone') }}
               </div>
             </div>
 
             <div class="form-group">
               <label>Address *</label>
               <input type="text" formControlName="address" class="form-control"
-                     [class.is-invalid]="checkoutForm.get('shipping.address')?.invalid && checkoutForm.get('shipping.address')?.touched">
-              <div *ngIf="checkoutForm.get('shipping.address')?.invalid && checkoutForm.get('shipping.address')?.touched"
-                   class="invalid-feedback">
-                Please enter your address
+                     [class.is-invalid]="isFieldInvalid('shipping.address')">
+              <div *ngIf="isFieldInvalid('shipping.address')" class="invalid-feedback">
+                {{ getFieldError('shipping.address') }}
               </div>
             </div>
 
@@ -81,19 +72,17 @@
               <div class="form-group">
                 <label>City *</label>
                 <input type="text" formControlName="city" class="form-control"
-                       [class.is-invalid]="checkoutForm.get('shipping.city')?.invalid && checkoutForm.get('shipping.city')?.touched">
-                <div *ngIf="checkoutForm.get('shipping.city')?.invalid && checkoutForm.get('shipping.city')?.touched"
-                     class="invalid-feedback">
-                  Please enter your city
+                       [class.is-invalid]="isFieldInvalid('shipping.city')">
+                <div *ngIf="isFieldInvalid('shipping.city')" class="invalid-feedback">
+                  {{ getFieldError('shipping.city') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>State *</label>
                 <input type="text" formControlName="state" class="form-control"
-                       [class.is-invalid]="checkoutForm.get('shipping.state')?.invalid && checkoutForm.get('shipping.state')?.touched">
-                <div *ngIf="checkoutForm.get('shipping.state')?.invalid && checkoutForm.get('shipping.state')?.touched"
-                     class="invalid-feedback">
-                  Please enter your state
+                       [class.is-invalid]="isFieldInvalid('shipping.state')">
+                <div *ngIf="isFieldInvalid('shipping.state')" class="invalid-feedback">
+                  {{ getFieldError('shipping.state') }}
                 </div>
               </div>
             </div>
@@ -102,24 +91,22 @@
               <div class="form-group">
                 <label>Zip Code *</label>
                 <input type="text" formControlName="zipCode" class="form-control"
-                       [class.is-invalid]="checkoutForm.get('shipping.zipCode')?.invalid && checkoutForm.get('shipping.zipCode')?.touched">
-                <div *ngIf="checkoutForm.get('shipping.zipCode')?.invalid && checkoutForm.get('shipping.zipCode')?.touched"
-                     class="invalid-feedback">
-                  Please enter your zip code
+                       [class.is-invalid]="isFieldInvalid('shipping.zipCode')">
+                <div *ngIf="isFieldInvalid('shipping.zipCode')" class="invalid-feedback">
+                  {{ getFieldError('shipping.zipCode') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>Country *</label>
                 <select formControlName="country" class="form-control"
-                        [class.is-invalid]="checkoutForm.get('shipping.country')?.invalid && checkoutForm.get('shipping.country')?.touched">
+                        [class.is-invalid]="isFieldInvalid('shipping.country')">
                   <option value="">Select Country</option>
                   <option value="US">United States</option>
                   <option value="CA">Canada</option>
                   <option value="UK">United Kingdom</option>
                 </select>
-                <div *ngIf="checkoutForm.get('shipping.country')?.invalid && checkoutForm.get('shipping.country')?.touched"
-                     class="invalid-feedback">
-                  Please select your country
+                <div *ngIf="isFieldInvalid('shipping.country')" class="invalid-feedback">
+                  {{ getFieldError('shipping.country') }}
                 </div>
               </div>
             </div>
@@ -141,11 +128,11 @@
 
             <div class="payment-demo-notice">
               <h3>DEMO PAYMENT</h3>
-              <p>Use these test card details:</p>
+              <p>Use these test card details (pre-filled):</p>
               <ul>
                 <li>Card: <code>4242 4242 4242 4242</code></li>
-                <li>Date: Any future date (MM/YY)</li>
-                <li>CVC: Any 3 digits</li>
+                <li>Date: <code>12/25</code></li>
+                <li>CVC: <code>123</code></li>
               </ul>
             </div>
 
@@ -153,24 +140,18 @@
               <label>Card Number *</label>
               <input type="text" formControlName="cardNumber" class="form-control" 
                      placeholder="1234 5678 9012 3456"
-                     [class.is-invalid]="checkoutForm.get('payment.cardNumber')?.invalid && checkoutForm.get('payment.cardNumber')?.touched">
-              <div *ngIf="checkoutForm.get('payment.cardNumber')?.errors?.['required'] && checkoutForm.get('payment.cardNumber')?.touched"
-                   class="invalid-feedback">
-                Please enter your card number
-              </div>
-              <div *ngIf="checkoutForm.get('payment.cardNumber')?.errors?.['pattern'] && checkoutForm.get('payment.cardNumber')?.touched"
-                   class="invalid-feedback">
-                Please enter a valid 16-digit card number
+                     [class.is-invalid]="isFieldInvalid('payment.cardNumber')">
+              <div *ngIf="isFieldInvalid('payment.cardNumber')" class="invalid-feedback">
+                {{ getFieldError('payment.cardNumber') }}
               </div>
             </div>
 
             <div class="form-group">
               <label>Name on Card *</label>
               <input type="text" formControlName="cardName" class="form-control"
-                     [class.is-invalid]="checkoutForm.get('payment.cardName')?.invalid && checkoutForm.get('payment.cardName')?.touched">
-              <div *ngIf="checkoutForm.get('payment.cardName')?.invalid && checkoutForm.get('payment.cardName')?.touched"
-                   class="invalid-feedback">
-                Please enter the name on your card
+                     [class.is-invalid]="isFieldInvalid('payment.cardName')">
+              <div *ngIf="isFieldInvalid('payment.cardName')" class="invalid-feedback">
+                {{ getFieldError('payment.cardName') }}
               </div>
             </div>
 
@@ -179,28 +160,18 @@
                 <label>Expiry Date *</label>
                 <input type="text" formControlName="expiryDate" class="form-control" 
                        placeholder="MM/YY"
-                       [class.is-invalid]="checkoutForm.get('payment.expiryDate')?.invalid && checkoutForm.get('payment.expiryDate')?.touched">
-                <div *ngIf="checkoutForm.get('payment.expiryDate')?.errors?.['required'] && checkoutForm.get('payment.expiryDate')?.touched"
-                     class="invalid-feedback">
-                  Please enter expiry date
-                </div>
-                <div *ngIf="checkoutForm.get('payment.expiryDate')?.errors?.['pattern'] && checkoutForm.get('payment.expiryDate')?.touched"
-                     class="invalid-feedback">
-                  Please use MM/YY format
+                       [class.is-invalid]="isFieldInvalid('payment.expiryDate')">
+                <div *ngIf="isFieldInvalid('payment.expiryDate')" class="invalid-feedback">
+                  {{ getFieldError('payment.expiryDate') }}
                 </div>
               </div>
               <div class="form-group">
                 <label>CVV *</label>
                 <input type="text" formControlName="cvv" class="form-control" 
                        placeholder="123"
-                       [class.is-invalid]="checkoutForm.get('payment.cvv')?.invalid && checkoutForm.get('payment.cvv')?.touched">
-                <div *ngIf="checkoutForm.get('payment.cvv')?.errors?.['required'] && checkoutForm.get('payment.cvv')?.touched"
-                     class="invalid-feedback">
-                  Please enter CVV
-                </div>
-                <div *ngIf="checkoutForm.get('payment.cvv')?.errors?.['pattern'] && checkoutForm.get('payment.cvv')?.touched"
-                     class="invalid-feedback">
-                  Please enter 3 or 4 digit code
+                       [class.is-invalid]="isFieldInvalid('payment.cvv')">
+                <div *ngIf="isFieldInvalid('payment.cvv')" class="invalid-feedback">
+                  {{ getFieldError('payment.cvv') }}
                 </div>
               </div>
             </div>
@@ -210,8 +181,13 @@
                 Back
               </button>
               <button type="button" class="btn-primary" (click)="placeOrder()"
-                      [disabled]="checkoutForm.invalid">
-                Place Order
+                      [disabled]="!canPlaceOrder()">
+                <span *ngIf="isProcessing">
+                  <i class="fas fa-spinner fa-spin"></i> Processing...
+                </span>
+                <span *ngIf="!isProcessing">
+                  <i class="fas fa-credit-card"></i> Place Order
+                </span>
               </button>
             </div>
           </div>
@@ -226,7 +202,7 @@
           <div class="order-item" *ngFor="let item of cartItems$ | async">
             <img [src]="item.product.image" [alt]="item.product.title">
             <div class="item-info">
-              <p class="item-title">{{ item.product.title | truncate:50 }}</p>
+              <p class="item-title">{{ item.product.title | slice:0:50 }}...</p>
               <p class="item-quantity">Qty: {{ item.quantity }}</p>
             </div>
             <p class="item-price">{{ (item.product.price * item.quantity) | currency }}</p>
@@ -252,6 +228,100 @@
           </div>
         </div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- Processing Overlay -->
+<div *ngIf="isProcessing" class="processing-overlay">
+  <div class="processing-modal">
+    <div class="spinner"></div>
+    <h3>Processing Payment...</h3>
+    <p>Please wait while we securely process your payment</p>
+  </div>
+</div>
+
+<!-- Payment Success Modal -->
+<div *ngIf="showSuccessModal" class="success-modal-overlay">
+  <div class="success-modal">
+    <div class="success-header">
+      <div class="success-icon">
+        <i class="fas fa-check-circle"></i>
+      </div>
+      <h2>Payment Successful!</h2>
+      <button class="close-btn" (click)="closeSuccessModal()">
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+
+    <div class="success-content" *ngIf="orderDetails">
+      <div class="order-summary-success">
+        <h3>Order Confirmation</h3>
+        <div class="order-details">
+          <div class="detail-row">
+            <span class="label">Order Number:</span>
+            <span class="value">#{{ orderDetails.orderId }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Customer:</span>
+            <span class="value">{{ orderDetails.customerName }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Email:</span>
+            <span class="value">{{ orderDetails.email }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Items:</span>
+            <span class="value">{{ orderDetails.itemCount }} items</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Payment Method:</span>
+            <span class="value">{{ orderDetails.paymentMethod.cardType }} ending in {{ orderDetails.paymentMethod.cardLast4 }}</span>
+          </div>
+          <div class="detail-row">
+            <span class="label">Estimated Delivery:</span>
+            <span class="value">{{ orderDetails.estimatedDelivery }}</span>
+          </div>
+          <div class="total-section">
+            <div class="detail-row">
+              <span class="label">Subtotal:</span>
+              <span class="value">{{ orderDetails.subtotal | currency }}</span>
+            </div>
+            <div class="detail-row">
+              <span class="label">Tax:</span>
+              <span class="value">{{ orderDetails.tax | currency }}</span>
+            </div>
+            <div class="detail-row total-amount">
+              <span class="label">Total:</span>
+              <span class="value">{{ orderDetails.total | currency }}</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="success-message">
+        <div class="message-item">
+          <i class="fas fa-check-circle"></i>
+          <span>Your order has been placed successfully!</span>
+        </div>
+        <div class="message-item">
+          <i class="fas fa-envelope"></i>
+          <span>Confirmation email sent to {{ orderDetails.email }}</span>
+        </div>
+        <div class="message-item">
+          <i class="fas fa-truck"></i>
+          <span>Track your order in your profile</span>
+        </div>
+      </div>
+    </div>
+
+    <div class="success-actions">
+      <button class="btn-primary" (click)="viewOrderDetails()">
+        <i class="fas fa-receipt"></i> View Order Details
+      </button>
+      <button class="btn-secondary" (click)="continueShopping()">
+        <i class="fas fa-shopping-bag"></i> Continue Shopping
+      </button>
     </div>
   </div>
 </div>

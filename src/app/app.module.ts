@@ -1,8 +1,9 @@
+// src/app/app.module.ts
 import { NgModule } from '@angular/core';
 import { BrowserModule } from '@angular/platform-browser';
 import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 import { HttpClientModule } from '@angular/common/http';
-import { ReactiveFormsModule } from '@angular/forms';
+import { ReactiveFormsModule, FormsModule } from '@angular/forms'; // ✅ Added FormsModule
 import { AgGridModule } from 'ag-grid-angular';
 
 import { AppRoutingModule } from './app-routing.module';
@@ -10,17 +11,17 @@ import { AppComponent } from './app.component';
 import { CoreModule } from './core/core.module';
 import { SharedModule } from './shared/shared.module';
 
-
 @NgModule({
   declarations: [
     AppComponent,
   ],
   imports: [
     AgGridModule,
-      BrowserModule,
+    BrowserModule,
     BrowserAnimationsModule,
     HttpClientModule,
-    ReactiveFormsModule,
+    ReactiveFormsModule, // ✅ Required for checkout form
+    FormsModule,         // ✅ Required for ngModel in profile
     AppRoutingModule,  
     CoreModule,
     SharedModule       

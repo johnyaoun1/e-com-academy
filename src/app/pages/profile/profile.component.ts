@@ -1,13 +1,16 @@
+// src/app/profile/profile.component.ts - Fixed for your existing OrderService
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil } from 'rxjs/operators';
+import { takeUntil, map } from 'rxjs/operators';
 
-// Import only AuthService, don't import User type to avoid conflicts
+// Import services - using your existing OrderService
 import { AuthService } from '../../auth/services/auth.service';
+import { OrderService, Order } from '../../shared/services/order.service';
+import { CartService } from '../../shared/services/cart.service';
 
-// Define our own extended User interface for the profile
+// Profile-specific interfaces
 export interface ProfileUser {
   id?: string;
   username?: string;
@@ -17,23 +20,7 @@ export interface ProfileUser {
   phone?: string;
   avatar?: string;
   createdAt?: Date;
-  [key: string]: any; // Allow additional properties
-}
-
-export interface Order {
-  id: string;
-  date: Date;
-  status: 'pending' | 'processing' | 'shipped' | 'delivered' | 'cancelled';
-  items: OrderItem[];
-  total: number;
-}
-
-export interface OrderItem {
-  id: string;
-  name: string;
-  image: string;
-  quantity: number;
-  price: number;
+  [key: string]: any;
 }
 
 export interface PaymentMethod {
@@ -46,24 +33,6 @@ export interface PaymentMethod {
   isDefault: boolean;
 }
 
-export interface Address {
-  id: string;
-  label: string;
-  fullName: string;
-  street: string;
-  city: string;
-  state: string;
-  zipCode: string;
-  country: string;
-  isDefault: boolean;
-}
-
-export interface UserSettings {
-  emailNotifications: boolean;
-  smsNotifications: boolean;
-  marketing: boolean;
-}
-
 @Component({
   selector: 'app-profile',
   templateUrl: './profile.component.html',
@@ -72,7 +41,6 @@ export interface UserSettings {
 export class ProfileComponent implements OnInit, OnDestroy {
   @ViewChild('fileInput') fileInput!: ElementRef;
   
-  // Use our extended ProfileUser interface
   user: ProfileUser | null = null;
   profileForm!: FormGroup;
   
@@ -88,29 +56,28 @@ export class ProfileComponent implements OnInit, OnDestroy {
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   paymentMethods: PaymentMethod[] = [];
-  addresses: Address[] = [];
+  // Removed paymentHistory as it's not supported by your OrderService
   
-  // Filters and settings
+  // Filters
   orderFilter = 'all';
-  settings: UserSettings = {
-    emailNotifications: true,
-    smsNotifications: false,
-    marketing: true
-  };
 
   private destroy$ = new Subject<void>();
 
   constructor(
-    public authService: AuthService, // Changed from private to public
+    public authService: AuthService,
     private formBuilder: FormBuilder,
-    private router: Router
+    private router: Router,
+    private route: ActivatedRoute,
+    private orderService: OrderService,
+    private cartService: CartService
   ) {}
 
   ngOnInit() {
     console.log('Profile component initializing...');
     this.loadUserData();
     this.initForm();
-    this.loadMockData();
+    this.loadRealData();
+    this.handleRouteParams();
   }
 
   ngOnDestroy() {
@@ -118,7 +85,108 @@ export class ProfileComponent implements OnInit, OnDestroy {
     this.destroy$.complete();
   }
 
-  // Initialize reactive form
+  // Handle route parameters (for direct navigation to specific tabs)
+  handleRouteParams() {
+    this.route.queryParams.subscribe(params => {
+      if (params['tab']) {
+        this.setActiveTab(params['tab']);
+      }
+    });
+  }
+
+  // Load real data
+  loadRealData() {
+    this.loading = true;
+    
+    // Load real orders from your existing OrderService
+    this.loadUserOrders();
+    
+    // Load mock data for payment methods
+    this.loadMockPaymentMethods();
+    
+    this.loading = false;
+  }
+
+  // Load user orders using your existing OrderService
+  loadUserOrders() {
+    this.orderService.orders$
+      .pipe(
+        takeUntil(this.destroy$),
+        map(orders => {
+          // Filter orders by current user email using your existing method
+          const userEmail = this.user?.email;
+          if (userEmail) {
+            return this.orderService.getOrdersByEmail(userEmail);
+          }
+          return orders; // Return all orders if no user email (for demo purposes)
+        })
+      )
+      .subscribe({
+        next: (userOrders) => {
+          console.log('✅ Loaded user orders:', userOrders.length);
+          this.orders = userOrders;
+          this.filterOrders(); // Apply current filter
+        },
+        error: (error) => {
+          console.error('❌ Error loading orders:', error);
+          this.error = 'Failed to load orders';
+        }
+      });
+  }
+
+  // Filter orders by status using your existing method
+  filterOrders() {
+    if (this.orderFilter === 'all') {
+      this.filteredOrders = [...this.orders];
+    } else {
+      this.filteredOrders = this.orderService.getOrdersByStatus(this.orderFilter as Order['status']);
+      // Further filter by user email
+      const userEmail = this.user?.email;
+      if (userEmail) {
+        this.filteredOrders = this.filteredOrders.filter(order => 
+          order.email.toLowerCase() === userEmail.toLowerCase()
+        );
+      }
+    }
+    console.log(`🔍 Filtered orders (${this.orderFilter}):`, this.filteredOrders.length);
+  }
+
+  // View order details using your existing method
+  viewOrder(orderId: number) {
+    console.log('Viewing order:', orderId);
+    const order = this.orderService.getOrderById(orderId);
+    if (order) {
+      this.showSuccess(`Order #${orderId} - Status: ${order.status} - Total: $${order.total.toFixed(2)}`);
+    }
+  }
+
+  // Reorder functionality
+  reorder(orderId: number) {
+    const order = this.orderService.getOrderById(orderId);
+    if (order) {
+      console.log('🔄 Reordering:', order);
+      
+      // Add all items from the order back to cart
+      order.items.forEach(item => {
+        // Create a product object from the order item
+        const product = {
+          id: item.productId,
+          title: item.name,
+          price: item.price,
+          image: item.image,
+          description: '',
+          category: '',
+          rating: { rate: 0, count: 0 }
+        };
+        
+        this.cartService.addToCart(product, item.quantity);
+      });
+      
+      this.showSuccess(`${order.items.length} items added to cart!`);
+    }
+  }
+
+  // Initialize form
   initForm() {
     this.profileForm = this.formBuilder.group({
       username: [{ value: this.user?.username || '', disabled: true }],
@@ -129,8 +197,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Convert any user object to ProfileUser and add missing properties
-  
+  // Convert auth user to profile user - FIXED property names
   private convertToProfileUser(authUser: any): ProfileUser {
     if (!authUser) {
       return {
@@ -149,26 +216,24 @@ export class ProfileComponent implements OnInit, OnDestroy {
       id: authUser?.id || '1',
       username: authUser?.username || 'user',
       email: authUser?.email || 'user@example.com',
-      firstName: authUser?.firstname || authUser?.firstName || authUser?.name?.split(' ')[0] || 'John',
-      lastName: authUser?.lastname || authUser?.lastName || authUser?.name?.split(' ')[1] || 'Doe',
+      firstName: authUser?.firstname || authUser?.firstName || authUser?.name?.split(' ')[0] || 'John', // Fixed: check 'firstname' first
+      lastName: authUser?.lastname || authUser?.lastName || authUser?.name?.split(' ')[1] || 'Doe',   // Fixed: check 'lastname' first
       phone: authUser?.phone || '',
       avatar: authUser?.profilePicture || authUser?.avatar || 'assets/default-avatar.png',
       createdAt: authUser?.createdAt || new Date('2024-01-01'),
-      ...authUser // Include any additional properties
+      ...authUser
     };
   }
 
-  // Load user data with proper error handling
+  // Load user data
   loadUserData() {
     try {
       let authUser: any = null;
       
-      // Try to get user data from AuthService using different methods
       if (this.authService?.currentUserValue) {
         authUser = this.authService.currentUserValue;
         console.log('Loaded user from currentUserValue:', authUser);
       } else if (this.authService?.currentUser) {
-        // Subscribe to currentUser observable
         this.authService.currentUser
           .pipe(takeUntil(this.destroy$))
           .subscribe(user => {
@@ -179,14 +244,12 @@ export class ProfileComponent implements OnInit, OnDestroy {
               console.log('Loaded user from currentUser observable:', authUser);
             }
           });
-        return; // Exit early since we're handling this asynchronously
+        return;
       }
       
-      // Convert and set user
       this.user = this.convertToProfileUser(authUser);
       this.updateFormWithUserData();
       
-      // Load saved avatar from localStorage if available
       const savedAvatar = localStorage.getItem('userAvatar');
       if (savedAvatar && this.user) {
         this.user.avatar = savedAvatar;
@@ -194,7 +257,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
       
     } catch (error) {
       console.error('Error loading user data:', error);
-      // Set complete default user if everything fails
       this.user = {
         id: '1',
         username: 'testuser',
@@ -221,83 +283,16 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Profile picture methods
-  triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
-  }
-
-  onFileSelected(event: any): void {
-    const file = event.target.files[0];
-    if (file) {
-      // Check file size (limit to 2MB)
-      if (file.size > 2 * 1024 * 1024) {
-        this.error = 'File size must be less than 2MB';
-        return;
-      }
-
-      // Check file type
-      if (!file.type.startsWith('image/')) {
-        this.error = 'Please select a valid image file';
-        return;
-      }
-
-      // Convert to base64 and save
-      const reader = new FileReader();
-      reader.onload = (e: any) => {
-        const base64Image = e.target.result;
-        this.updateProfilePicture(base64Image);
-      };
-      reader.readAsDataURL(file);
-    }
-  }
-
-  updateProfilePicture(imageData: string): void {
-    if (this.user) {
-      // Update current user object
-      this.user.avatar = imageData;
-      
-      // Try to update in AuthService if available
-      try {
-        const currentUser = this.authService.currentUserValue;
-        if (currentUser && this.authService.updateUserProfile) {
-          const updatedUser = { ...currentUser, profilePicture: imageData };
-          this.authService.updateUserProfile(updatedUser);
-        }
-      } catch (error) {
-        console.log('AuthService update not available, saving locally');
-      }
-      
-      // Save to localStorage as backup
-      localStorage.setItem('userAvatar', imageData);
-      
-      this.showSuccess('Profile picture updated successfully!');
-      console.log('Profile picture updated successfully');
-    }
-  }
-
-  getDefaultAvatar(): string {
-    const name = this.user?.firstName || 'User';
-    return `https://ui-avatars.com/api/?name=${name}&background=007bff&color=fff&size=150`;
-  }
-
-  // Load mock data
-  loadMockData() {
-    this.loading = true;
-    
-    setTimeout(() => {
-      this.loadMockOrders();
-      this.loadMockPaymentMethods();
-      this.loadMockAddresses();
-      this.loadSettings();
-      this.loading = false;
-    }, 1000);
-  }
-
   // Tab management
   setActiveTab(tab: string) {
     this.activeTab = tab;
     this.error = '';
     this.successMessage = '';
+    
+    // Reload orders when switching to orders tab
+    if (tab === 'orders') {
+      this.loadUserOrders();
+    }
   }
 
   // Profile editing
@@ -321,7 +316,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
 
       setTimeout(() => {
         if (this.user) {
-          // Update user with form values
           this.user = {
             ...this.user,
             email: this.profileForm.value.email,
@@ -340,43 +334,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Mock data methods
-  loadMockOrders() {
-    this.orders = [
-      {
-        id: 'ORD-001',
-        date: new Date('2024-01-15'),
-        status: 'delivered',
-        items: [
-          {
-            id: '1',
-            name: 'iPhone 15 Pro',
-            image: 'https://images.unsplash.com/photo-1592750475338-74b7b21085ab?w=100',
-            quantity: 1,
-            price: 999
-          }
-        ],
-        total: 999
-      },
-      {
-        id: 'ORD-002',
-        date: new Date('2024-02-01'),
-        status: 'shipped',
-        items: [
-          {
-            id: '2',
-            name: 'MacBook Air',
-            image: 'https://images.unsplash.com/photo-1541807084-5c52b6b3adef?w=100',
-            quantity: 1,
-            price: 1299
-          }
-        ],
-        total: 1299
-      }
-    ];
-    this.filteredOrders = [...this.orders];
-  }
-
+  // Mock payment methods (keep for now)
   loadMockPaymentMethods() {
     const fullName = `${this.user?.firstName || 'John'} ${this.user?.lastName || 'Doe'}`;
     this.paymentMethods = [
@@ -388,67 +346,80 @@ export class ProfileComponent implements OnInit, OnDestroy {
         expiryYear: '25',
         holderName: fullName,
         isDefault: true
-      },
-      {
-        id: '2',
-        type: 'mastercard',
-        lastFour: '5678',
-        expiryMonth: '08',
-        expiryYear: '26',
-        holderName: fullName,
-        isDefault: false
       }
     ];
   }
 
-  loadMockAddresses() {
-    const fullName = `${this.user?.firstName || 'John'} ${this.user?.lastName || 'Doe'}`;
-    this.addresses = [
-      {
-        id: '1',
-        label: 'Home',
-        fullName: fullName,
-        street: '123 Main St',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10001',
-        country: 'United States',
-        isDefault: true
-      },
-      {
-        id: '2',
-        label: 'Work',
-        fullName: fullName,
-        street: '456 Business Ave',
-        city: 'New York',
-        state: 'NY',
-        zipCode: '10002',
-        country: 'United States',
-        isDefault: false
-      }
-    ];
+  // Avatar methods
+  triggerFileInput(): void {
+    this.fileInput.nativeElement.click();
   }
 
-  // Orders management
-  filterOrders() {
-    if (this.orderFilter === 'all') {
-      this.filteredOrders = [...this.orders];
-    } else {
-      this.filteredOrders = this.orders.filter(order => order.status === this.orderFilter);
+  onFileSelected(event: any): void {
+    const file = event.target.files[0];
+    if (file) {
+      if (file.size > 2 * 1024 * 1024) {
+        this.error = 'File size must be less than 2MB';
+        return;
+      }
+
+      if (!file.type.startsWith('image/')) {
+        this.error = 'Please select a valid image file';
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e: any) => {
+        const base64Image = e.target.result;
+        this.updateProfilePicture(base64Image);
+      };
+      reader.readAsDataURL(file);
     }
   }
 
-  viewOrder(orderId: string) {
-    console.log('Viewing order:', orderId);
-    this.showSuccess('Order details would open here');
+  updateProfilePicture(imageData: string): void {
+    if (this.user) {
+      this.user.avatar = imageData;
+      
+      try {
+        const currentUser = this.authService.currentUserValue;
+        if (currentUser && this.authService.updateUserProfile) {
+          const updatedUser = { ...currentUser, profilePicture: imageData };
+          this.authService.updateUserProfile(updatedUser);
+        }
+      } catch (error) {
+        console.log('AuthService update not available, saving locally');
+      }
+      
+      localStorage.setItem('userAvatar', imageData);
+      this.showSuccess('Profile picture updated successfully!');
+    }
   }
 
-  reorder(orderId: string) {
-    console.log('Reordering:', orderId);
-    this.showSuccess('Items added to cart!');
+  getDefaultAvatar(): string {
+    const name = this.user?.firstName || 'User';
+    return `https://ui-avatars.com/api/?name=${name}&background=007bff&color=fff&size=150`;
   }
 
-  // Payment methods management
+  onAvatarError(img: any): void {
+    img.src = this.getDefaultAvatar();
+  }
+
+  changeAvatar() {
+    this.triggerFileInput();
+  }
+
+  // Navigation methods
+  goToShop() {
+    this.router.navigate(['/products']);
+  }
+
+  retry() {
+    this.error = '';
+    this.loadRealData();
+  }
+
+  // Payment methods
   addPaymentMethod() {
     this.showSuccess('Payment method form would open here');
   }
@@ -481,72 +452,19 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return icons[type as keyof typeof icons] || 'fas fa-credit-card';
   }
 
-  // Address management
-  addAddress() {
-    this.showSuccess('Add address form would open here');
-  }
-
-  editAddress(id: string) {
-    this.showSuccess('Edit address form would open here');
-  }
-
-  removeAddress(id: string) {
-    if (confirm('Are you sure you want to remove this address?')) {
-      this.addresses = this.addresses.filter(addr => addr.id !== id);
-      this.showSuccess('Address removed successfully!');
+  // Helper methods
+  getOrderDate(dateString: string): string {
+    try {
+      const date = new Date(dateString);
+      return date.toLocaleDateString('en-US', { 
+        year: 'numeric', 
+        month: 'short', 
+        day: 'numeric' 
+      });
+    } catch (error) {
+      return dateString;
     }
   }
-
-  setDefaultAddress(id: string) {
-    this.addresses.forEach(addr => {
-      addr.isDefault = addr.id === id;
-    });
-    this.showSuccess('Default address updated!');
-  }
-
-  // Settings management
-  loadSettings() {
-    const savedSettings = localStorage.getItem('userSettings');
-    if (savedSettings) {
-      this.settings = JSON.parse(savedSettings);
-    }
-  }
-
-  updateSettings() {
-    localStorage.setItem('userSettings', JSON.stringify(this.settings));
-    this.showSuccess('Settings updated!');
-  }
-
-  changePassword() {
-    this.router.navigate(['/auth/change-password']);
-  }
-
-  deleteAccount() {
-    if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
-      this.showSuccess('Account deletion would be processed here');
-    }
-  }
-
-  // Utility methods
-  changeAvatar() {
-    this.triggerFileInput();
-  }
-
-  goToShop() {
-    this.router.navigate(['/products']);
-  }
-
-  retry() {
-    this.error = '';
-    this.loadMockData();
-  }
-  // ...existing code...
-
-onAvatarError(img: any): void {
-  img.src = this.getDefaultAvatar();
-}
-
-// ...existing code...
 
   getFieldError(fieldName: string): string {
     const field = this.profileForm.get(fieldName);

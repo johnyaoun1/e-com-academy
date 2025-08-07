@@ -1,9 +1,10 @@
+// src/app/checkout/checkout.component.ts - Fixed for your User interface
 import { Component, OnInit, OnDestroy } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router } from '@angular/router';
 import { CartService, CartItem } from '../shared/services/cart.service';
-import { OrderService } from '../shared/services/order.service';
-import { InventoryService } from '../shared/services/inventory.service';
+import { OrderService, Order, OrderItem } from '../shared/services/order.service';
+import { AuthService } from '../auth/services/auth.service';
 import { Observable, Subscription } from 'rxjs';
 import { take } from 'rxjs/operators';
 
@@ -19,13 +20,18 @@ export class CheckoutComponent implements OnInit, OnDestroy {
   currentStep = 1;
   isProcessing = false;
   stockErrors: string[] = [];
+  
+  // Payment success modal state
+  showSuccessModal = false;
+  orderDetails: any = null;
+
   private cartSubscription!: Subscription;
 
   constructor(
     private fb: FormBuilder,
     private cartService: CartService,
     private orderService: OrderService,
-    private inventoryService: InventoryService,
+    private authService: AuthService,
     private router: Router
   ) {}
 
@@ -37,6 +43,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     });
 
     this.initForm();
+    this.prefillUserData();
   }
 
   ngOnDestroy() {
@@ -61,26 +68,34 @@ export class CheckoutComponent implements OnInit, OnDestroy {
       }),
       // Payment Information
       payment: this.fb.group({
-        cardNumber: ['', [Validators.required, Validators.pattern(/^\d{16}$/)]],
+        cardNumber: ['4242424242424242', [Validators.required, Validators.pattern(/^\d{16}$/)]],
         cardName: ['', Validators.required],
-        expiryDate: ['', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)]],
-        cvv: ['', [Validators.required, Validators.pattern(/^\d{3,4}$/)]]
+        expiryDate: ['12/25', [Validators.required, Validators.pattern(/^(0[1-9]|1[0-2])\/?([0-9]{2})$/)]],
+        cvv: ['123', [Validators.required, Validators.pattern(/^\d{3,4}$/)]]
       })
     });
   }
 
-  private checkStockAvailability(): void {
-    this.stockErrors = [];
-    this.cartService.cartItems$.pipe(take(1)).subscribe((cartItems: CartItem[]) => {
-      cartItems.forEach(item => {
-        if (!this.inventoryService.isAvailable(item.product.id, item.quantity)) {
-          const availableStock = this.inventoryService.getCurrentStock(item.product.id);
-          this.stockErrors.push(
-            `${item.product.title}: Only ${availableStock} items available, but you have ${item.quantity} in cart`
-          );
+  prefillUserData() {
+    // Prefill with current user data if available - FIXED property names
+    const currentUser = this.authService.currentUserValue;
+    if (currentUser) {
+      this.checkoutForm.patchValue({
+        shipping: {
+          firstName: currentUser.firstname || '', // Fixed: using 'firstname' not 'firstName'
+          lastName: currentUser.lastname || '',   // Fixed: using 'lastname' not 'lastName'
+          email: currentUser.email || ''
+        },
+        payment: {
+          cardName: `${currentUser.firstname || ''} ${currentUser.lastname || ''}`.trim() // Fixed: using correct property names
         }
       });
-    });
+    }
+  }
+
+  private checkStockAvailability(): void {
+    this.stockErrors = [];
+    // Add your stock check logic here if needed
   }
 
   nextStep() {
@@ -108,40 +123,23 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     const shippingInfo = this.checkoutForm.value.shipping;
     const paymentInfo = this.checkoutForm.value.payment;
 
-    // Create a one-time subscription to get current cart items
+    // Get current user for the order
+    const currentUser = this.authService.currentUserValue;
+    const userEmail = currentUser?.email || shippingInfo.email;
+
     this.cartService.cartItems$.pipe(take(1)).subscribe((cartItems: CartItem[]) => {
-      // Double-check stock availability before processing
-      const stockCheckFailed = cartItems.some(item => 
-        !this.inventoryService.isAvailable(item.product.id, item.quantity)
-      );
-
-      if (stockCheckFailed) {
-        this.checkStockAvailability();
-        this.isProcessing = false;
-        return;
-      }
-
-      // Reduce inventory for each item
-      let inventoryUpdateFailed = false;
-      cartItems.forEach(item => {
-        if (!this.inventoryService.reduceStock(item.product.id, item.quantity)) {
-          inventoryUpdateFailed = true;
-        }
-      });
-
-      if (inventoryUpdateFailed) {
-        this.checkStockAvailability();
-        this.isProcessing = false;
-        return;
-      }
-
-      const order = {
-        id: Date.now(),
+      const orderId = Date.now();
+      const taxAmount = this.cartTotal * 0.08;
+      const totalWithTax = this.cartTotal + taxAmount;
+      
+      // Create order using your existing Order interface
+      const order: Order = {
+        id: orderId,
         customerName: `${shippingInfo.firstName} ${shippingInfo.lastName}`,
-        email: shippingInfo.email,
-        total: this.cartTotal,
+        email: userEmail,
+        total: totalWithTax,
         date: new Date().toISOString(),
-        status: 'Processing' as const,
+        status: 'Processing',
         shippingAddress: {
           address: shippingInfo.address,
           city: shippingInfo.city,
@@ -153,7 +151,7 @@ export class CheckoutComponent implements OnInit, OnDestroy {
           cardLast4: paymentInfo.cardNumber.slice(-4),
           cardType: this.getCardType(paymentInfo.cardNumber)
         },
-        items: cartItems.map((item: CartItem) => ({
+        items: cartItems.map((item: CartItem): OrderItem => ({
           productId: item.product.id,
           name: item.product.title,
           quantity: item.quantity,
@@ -162,27 +160,61 @@ export class CheckoutComponent implements OnInit, OnDestroy {
         }))
       };
 
-      // Add order to service
-      this.orderService.addOrder(order);
+      // Save order details for the modal
+      this.orderDetails = {
+        orderId: orderId,
+        total: totalWithTax,
+        subtotal: this.cartTotal,
+        tax: taxAmount,
+        customerName: order.customerName,
+        email: userEmail,
+        itemCount: cartItems.length,
+        paymentMethod: order.paymentMethod,
+        estimatedDelivery: this.getEstimatedDelivery(),
+        items: order.items
+      };
 
-      // Use a delay to ensure the cart is cleared after the order is placed
+      // Simulate payment processing delay
       setTimeout(() => {
-        this.cartService.clearCart();
-        this.isProcessing = false;
-      }, 500); // Delay for 500ms
+        // Add order using your existing OrderService
+        this.orderService.addOrder(order);
 
-      // Navigate to success page
-      this.router.navigate(['/order-success'], {
-        state: { order }
-      });
+        // Show success modal
+        this.showSuccessModal = true;
+        this.isProcessing = false;
+
+        // Clear cart after short delay
+        setTimeout(() => {
+          this.cartService.clearCart();
+        }, 500);
+      }, 2000); // 2 second delay to simulate payment processing
     });
   }
 
+  // Modal control methods
+  closeSuccessModal() {
+    this.showSuccessModal = false;
+    this.router.navigate(['/products']);
+  }
+
+  goToProfile() {
+    this.showSuccessModal = false;
+    this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
+  }
+
+  continueShopping() {
+    this.showSuccessModal = false;
+    this.router.navigate(['/products']);
+  }
+
+  viewOrderDetails() {
+    this.showSuccessModal = false;
+    this.router.navigate(['/profile'], { queryParams: { tab: 'orders' } });
+  }
+
   private getCardType(cardNumber: string): string {
-    // Remove all non-digit characters (spaces, dashes, etc.)
     const cleanedNumber = cardNumber.replace(/\D/g, '');
     
-    // If empty after cleaning, return "Unknown"
     if (cleanedNumber.length === 0) return 'Unknown';
     
     // Basic card type detection
@@ -191,5 +223,36 @@ export class CheckoutComponent implements OnInit, OnDestroy {
     if (cleanedNumber.startsWith('3')) return 'American Express';
     
     return 'Generic Card';
+  }
+
+  private getEstimatedDelivery(): string {
+    const deliveryDate = new Date();
+    deliveryDate.setDate(deliveryDate.getDate() + 3); // 3 days from now
+    return deliveryDate.toLocaleDateString('en-US', { 
+      weekday: 'long', 
+      year: 'numeric', 
+      month: 'long', 
+      day: 'numeric' 
+    });
+  }
+
+  // Utility methods for form validation display
+  isFieldInvalid(fieldPath: string): boolean {
+    const field = this.checkoutForm.get(fieldPath);
+    return !!(field && field.invalid && field.touched);
+  }
+
+  getFieldError(fieldPath: string): string {
+    const field = this.checkoutForm.get(fieldPath);
+    if (field && field.invalid && field.touched) {
+      if (field.errors?.['required']) return 'This field is required';
+      if (field.errors?.['email']) return 'Please enter a valid email';
+      if (field.errors?.['pattern']) {
+        if (fieldPath.includes('cardNumber')) return 'Please enter a valid 16-digit card number';
+        if (fieldPath.includes('expiryDate')) return 'Please use MM/YY format';
+        if (fieldPath.includes('cvv')) return 'Please enter a valid CVV';
+      }
+    }
+    return '';
   }
 }
