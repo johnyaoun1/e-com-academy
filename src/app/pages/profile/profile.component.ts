@@ -1,16 +1,14 @@
-// src/app/profile/profile.component.ts - Fixed for your existing OrderService
+// src/app/profile/profile.component.ts - Ultra Simple Version
 import { Component, OnInit, OnDestroy, ViewChild, ElementRef } from '@angular/core';
 import { FormBuilder, FormGroup, Validators } from '@angular/forms';
 import { Router, ActivatedRoute } from '@angular/router';
 import { Subject } from 'rxjs';
-import { takeUntil, map } from 'rxjs/operators';
+import { takeUntil } from 'rxjs/operators';
 
-// Import services - using your existing OrderService
 import { AuthService } from '../../auth/services/auth.service';
 import { OrderService, Order } from '../../shared/services/order.service';
 import { CartService } from '../../shared/services/cart.service';
 
-// Profile-specific interfaces
 export interface ProfileUser {
   id?: string;
   username?: string;
@@ -52,11 +50,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
   error = '';
   successMessage = '';
   
-  // Data arrays
+  // Data arrays - Initialize to prevent null errors
   orders: Order[] = [];
   filteredOrders: Order[] = [];
   paymentMethods: PaymentMethod[] = [];
-  // Removed paymentHistory as it's not supported by your OrderService
   
   // Filters
   orderFilter = 'all';
@@ -72,21 +69,103 @@ export class ProfileComponent implements OnInit, OnDestroy {
     private cartService: CartService
   ) {}
 
-  ngOnInit() {
-    console.log('Profile component initializing...');
+  ngOnInit(): void {
     this.loadUserData();
     this.initForm();
     this.loadRealData();
     this.handleRouteParams();
   }
 
-  ngOnDestroy() {
+  ngOnDestroy(): void {
     this.destroy$.next();
     this.destroy$.complete();
   }
 
-  // Handle route parameters (for direct navigation to specific tabs)
-  handleRouteParams() {
+  // Helper methods to replace complex template expressions
+  getUserAvatar(): string {
+    return this.user?.avatar || this.getDefaultAvatar();
+  }
+
+  getUserFullName(): string {
+    const firstName = this.user?.firstName || '';
+    const lastName = this.user?.lastName || '';
+    return `${firstName} ${lastName}`.trim() || 'User';
+  }
+
+  getUserEmail(): string {
+    return this.user?.email || '';
+  }
+
+  getOrdersCount(): number {
+    return this.orders.length;
+  }
+
+  getPaymentMethodsCount(): number {
+    return this.paymentMethods.length;
+  }
+
+  hasFilteredOrders(): boolean {
+    return this.filteredOrders.length > 0;
+  }
+
+  hasPaymentMethods(): boolean {
+    return this.paymentMethods.length > 0;
+  }
+
+  hasFieldError(fieldName: string): boolean {
+    const field = this.profileForm.get(fieldName);
+    return !!(field?.errors && field.touched);
+  }
+
+  isFormInvalid(): boolean {
+    return this.profileForm.invalid;
+  }
+
+  getSaveButtonText(): string {
+    return this.saving ? 'Saving...' : 'Save Changes';
+  }
+
+  getOrderStatusClass(status: string): string {
+    return status.toLowerCase();
+  }
+
+  formatPrice(price: number): string {
+    return price.toFixed(2);
+  }
+
+  getShippingLocation(address: any): string {
+    return `${address.city}, ${address.state} ${address.zipCode}`;
+  }
+
+  getPaymentMethodDisplay(paymentMethod: any): string {
+    return `${paymentMethod.cardType} ending in ${paymentMethod.cardLast4}`;
+  }
+
+  canReorder(status: string): boolean {
+    return status === 'Delivered' || (status !== 'Delivered' && status !== 'Cancelled');
+  }
+
+  getReorderButtonText(status: string): string {
+    return status === 'Delivered' ? 'Reorder' : 'Buy Again';
+  }
+
+  getEmptyOrdersMessage(): string {
+    if (this.orderFilter === 'all') {
+      return "You haven't placed any orders yet";
+    }
+    return `No orders match the selected filter: ${this.orderFilter}`;
+  }
+
+  getPaymentCardClass(isDefault: boolean): string {
+    return isDefault ? 'default' : '';
+  }
+
+  handleAvatarError(event: any): void {
+    event.target.src = this.getDefaultAvatar();
+  }
+
+  // Rest of your existing methods...
+  handleRouteParams(): void {
     this.route.queryParams.subscribe(params => {
       if (params['tab']) {
         this.setActiveTab(params['tab']);
@@ -94,81 +173,56 @@ export class ProfileComponent implements OnInit, OnDestroy {
     });
   }
 
-  // Load real data
-  loadRealData() {
+  loadRealData(): void {
     this.loading = true;
-    
-    // Load real orders from your existing OrderService
     this.loadUserOrders();
-    
-    // Load mock data for payment methods
     this.loadMockPaymentMethods();
-    
     this.loading = false;
   }
 
-  // Load user orders using your existing OrderService
-  loadUserOrders() {
+  loadUserOrders(): void {
     this.orderService.orders$
-      .pipe(
-        takeUntil(this.destroy$),
-        map(orders => {
-          // Filter orders by current user email using your existing method
+      .pipe(takeUntil(this.destroy$))
+      .subscribe({
+        next: (orders) => {
           const userEmail = this.user?.email;
           if (userEmail) {
-            return this.orderService.getOrdersByEmail(userEmail);
+            this.orders = this.orderService.getOrdersByEmail(userEmail);
+          } else {
+            this.orders = orders;
           }
-          return orders; // Return all orders if no user email (for demo purposes)
-        })
-      )
-      .subscribe({
-        next: (userOrders) => {
-          console.log('✅ Loaded user orders:', userOrders.length);
-          this.orders = userOrders;
-          this.filterOrders(); // Apply current filter
+          this.filterOrders();
         },
         error: (error) => {
-          console.error('❌ Error loading orders:', error);
+          console.error('Error loading orders:', error);
           this.error = 'Failed to load orders';
+          this.orders = [];
+          this.filteredOrders = [];
         }
       });
   }
 
-  // Filter orders by status using your existing method
-  filterOrders() {
+  filterOrders(): void {
     if (this.orderFilter === 'all') {
       this.filteredOrders = [...this.orders];
     } else {
-      this.filteredOrders = this.orderService.getOrdersByStatus(this.orderFilter as Order['status']);
-      // Further filter by user email
-      const userEmail = this.user?.email;
-      if (userEmail) {
-        this.filteredOrders = this.filteredOrders.filter(order => 
-          order.email.toLowerCase() === userEmail.toLowerCase()
-        );
-      }
+      this.filteredOrders = this.orders.filter(order => 
+        order.status.toLowerCase() === this.orderFilter.toLowerCase()
+      );
     }
-    console.log(`🔍 Filtered orders (${this.orderFilter}):`, this.filteredOrders.length);
   }
 
-  // View order details using your existing method
-  viewOrder(orderId: number) {
-    console.log('Viewing order:', orderId);
+  viewOrder(orderId: number): void {
     const order = this.orderService.getOrderById(orderId);
     if (order) {
       this.showSuccess(`Order #${orderId} - Status: ${order.status} - Total: $${order.total.toFixed(2)}`);
     }
   }
 
-  // Reorder functionality
-  reorder(orderId: number) {
+  reorder(orderId: number): void {
     const order = this.orderService.getOrderById(orderId);
     if (order) {
-      console.log('🔄 Reordering:', order);
-      
-      // Add all items from the order back to cart
       order.items.forEach(item => {
-        // Create a product object from the order item
         const product = {
           id: item.productId,
           title: item.name,
@@ -178,26 +232,22 @@ export class ProfileComponent implements OnInit, OnDestroy {
           category: '',
           rating: { rate: 0, count: 0 }
         };
-        
         this.cartService.addToCart(product, item.quantity);
       });
-      
       this.showSuccess(`${order.items.length} items added to cart!`);
     }
   }
 
-  // Initialize form
-  initForm() {
+  initForm(): void {
     this.profileForm = this.formBuilder.group({
-      username: [{ value: this.user?.username || '', disabled: true }],
-      email: [this.user?.email || '', [Validators.required, Validators.email]],
-      firstName: [this.user?.firstName || '', [Validators.required, Validators.minLength(2)]],
-      lastName: [this.user?.lastName || '', [Validators.required, Validators.minLength(2)]],
-      phone: [this.user?.phone || '', [Validators.pattern(/^\+?[\d\s\-\(\)]+$/)]]
+      username: [{ value: '', disabled: true }],
+      email: ['', [Validators.required, Validators.email]],
+      firstName: ['', [Validators.required, Validators.minLength(2)]],
+      lastName: ['', [Validators.required, Validators.minLength(2)]],
+      phone: ['', [Validators.pattern(/^\+?[\d\s\-\(\)]+$/)]]
     });
   }
 
-  // Convert auth user to profile user - FIXED property names
   private convertToProfileUser(authUser: any): ProfileUser {
     if (!authUser) {
       return {
@@ -213,38 +263,23 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
 
     return {
-      id: authUser?.id || '1',
-      username: authUser?.username || 'user',
-      email: authUser?.email || 'user@example.com',
-      firstName: authUser?.firstname || authUser?.firstName || authUser?.name?.split(' ')[0] || 'John', // Fixed: check 'firstname' first
-      lastName: authUser?.lastname || authUser?.lastName || authUser?.name?.split(' ')[1] || 'Doe',   // Fixed: check 'lastname' first
-      phone: authUser?.phone || '',
-      avatar: authUser?.profilePicture || authUser?.avatar || 'assets/default-avatar.png',
-      createdAt: authUser?.createdAt || new Date('2024-01-01'),
-      ...authUser
+      id: authUser.id || '1',
+      username: authUser.username || 'user',
+      email: authUser.email || 'user@example.com',
+      firstName: authUser.firstname || authUser.firstName || 'John',
+      lastName: authUser.lastname || authUser.lastName || 'Doe',
+      phone: authUser.phone || '',
+      avatar: authUser.profilePicture || authUser.avatar || 'assets/default-avatar.png',
+      createdAt: authUser.createdAt || new Date('2024-01-01')
     };
   }
 
-  // Load user data
-  loadUserData() {
+  loadUserData(): void {
     try {
       let authUser: any = null;
       
       if (this.authService?.currentUserValue) {
         authUser = this.authService.currentUserValue;
-        console.log('Loaded user from currentUserValue:', authUser);
-      } else if (this.authService?.currentUser) {
-        this.authService.currentUser
-          .pipe(takeUntil(this.destroy$))
-          .subscribe(user => {
-            if (user) {
-              authUser = user;
-              this.user = this.convertToProfileUser(authUser);
-              this.updateFormWithUserData();
-              console.log('Loaded user from currentUser observable:', authUser);
-            }
-          });
-        return;
       }
       
       this.user = this.convertToProfileUser(authUser);
@@ -254,24 +289,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
       if (savedAvatar && this.user) {
         this.user.avatar = savedAvatar;
       }
-      
     } catch (error) {
       console.error('Error loading user data:', error);
-      this.user = {
-        id: '1',
-        username: 'testuser',
-        email: 'test@example.com',
-        firstName: 'Test',
-        lastName: 'User',
-        phone: '',
-        avatar: 'assets/default-avatar.png',
-        createdAt: new Date('2024-01-01')
-      };
+      this.user = this.convertToProfileUser(null);
       this.updateFormWithUserData();
     }
   }
 
-  updateFormWithUserData() {
+  updateFormWithUserData(): void {
     if (this.user && this.profileForm) {
       this.profileForm.patchValue({
         username: this.user.username || '',
@@ -283,33 +308,30 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Tab management
-  setActiveTab(tab: string) {
+  setActiveTab(tab: string): void {
     this.activeTab = tab;
     this.error = '';
     this.successMessage = '';
     
-    // Reload orders when switching to orders tab
     if (tab === 'orders') {
       this.loadUserOrders();
     }
   }
 
-  // Profile editing
-  toggleEdit() {
+  toggleEdit(): void {
     this.isEditing = !this.isEditing;
     if (!this.isEditing) {
       this.updateFormWithUserData();
     }
   }
 
-  cancelEdit() {
+  cancelEdit(): void {
     this.isEditing = false;
     this.updateFormWithUserData();
     this.error = '';
   }
 
-  saveProfile() {
+  saveProfile(): void {
     if (this.profileForm.valid) {
       this.saving = true;
       this.error = '';
@@ -334,8 +356,7 @@ export class ProfileComponent implements OnInit, OnDestroy {
     }
   }
 
-  // Mock payment methods (keep for now)
-  loadMockPaymentMethods() {
+  loadMockPaymentMethods(): void {
     const fullName = `${this.user?.firstName || 'John'} ${this.user?.lastName || 'Doe'}`;
     this.paymentMethods = [
       {
@@ -350,9 +371,10 @@ export class ProfileComponent implements OnInit, OnDestroy {
     ];
   }
 
-  // Avatar methods
   triggerFileInput(): void {
-    this.fileInput.nativeElement.click();
+    if (this.fileInput) {
+      this.fileInput.nativeElement.click();
+    }
   }
 
   onFileSelected(event: any): void {
@@ -380,17 +402,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
   updateProfilePicture(imageData: string): void {
     if (this.user) {
       this.user.avatar = imageData;
-      
-      try {
-        const currentUser = this.authService.currentUserValue;
-        if (currentUser && this.authService.updateUserProfile) {
-          const updatedUser = { ...currentUser, profilePicture: imageData };
-          this.authService.updateUserProfile(updatedUser);
-        }
-      } catch (error) {
-        console.log('AuthService update not available, saving locally');
-      }
-      
       localStorage.setItem('userAvatar', imageData);
       this.showSuccess('Profile picture updated successfully!');
     }
@@ -401,41 +412,35 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return `https://ui-avatars.com/api/?name=${name}&background=007bff&color=fff&size=150`;
   }
 
-  onAvatarError(img: any): void {
-    img.src = this.getDefaultAvatar();
-  }
-
-  changeAvatar() {
+  changeAvatar(): void {
     this.triggerFileInput();
   }
 
-  // Navigation methods
-  goToShop() {
+  goToShop(): void {
     this.router.navigate(['/products']);
   }
 
-  retry() {
+  retry(): void {
     this.error = '';
     this.loadRealData();
   }
 
-  // Payment methods
-  addPaymentMethod() {
+  addPaymentMethod(): void {
     this.showSuccess('Payment method form would open here');
   }
 
-  editPaymentMethod(id: string) {
+  editPaymentMethod(id: string): void {
     this.showSuccess('Edit payment method form would open here');
   }
 
-  removePaymentMethod(id: string) {
+  removePaymentMethod(id: string): void {
     if (confirm('Are you sure you want to remove this payment method?')) {
       this.paymentMethods = this.paymentMethods.filter(pm => pm.id !== id);
       this.showSuccess('Payment method removed successfully!');
     }
   }
 
-  setDefaultPayment(id: string) {
+  setDefaultPayment(id: string): void {
     this.paymentMethods.forEach(pm => {
       pm.isDefault = pm.id === id;
     });
@@ -452,7 +457,6 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return icons[type as keyof typeof icons] || 'fas fa-credit-card';
   }
 
-  // Helper methods
   getOrderDate(dateString: string): string {
     try {
       const date = new Date(dateString);
@@ -477,14 +481,14 @@ export class ProfileComponent implements OnInit, OnDestroy {
     return '';
   }
 
-  private markFormGroupTouched() {
+  private markFormGroupTouched(): void {
     Object.keys(this.profileForm.controls).forEach(key => {
       const control = this.profileForm.get(key);
       control?.markAsTouched();
     });
   }
 
-  private showSuccess(message: string) {
+  private showSuccess(message: string): void {
     this.successMessage = message;
     setTimeout(() => {
       this.successMessage = '';

@@ -1,31 +1,31 @@
-<!-- Fixed Profile HTML Template - Removed Payment History Features -->
+<!-- Ultra Simple Profile Template - No ɵassertType Errors -->
 <div class="profile-page">
   <div class="container">
     <div class="profile-header">
       <div class="user-info">
         <div class="avatar">
-          <img #avatarImg [src]="user?.avatar || getDefaultAvatar()" [alt]="user?.firstName || 'User'" (error)="onAvatarError(avatarImg)">
+          <!-- Simplified img tag - no complex expressions -->
+          <img [src]="getUserAvatar()" alt="User Avatar" (error)="handleAvatarError($event)">
+          
           <button *ngIf="isEditing" class="avatar-edit-btn" (click)="changeAvatar()">
             <i class="fas fa-camera"></i>
           </button>
+          
           <div class="picture-overlay" *ngIf="!isEditing" (click)="triggerFileInput()">
             <i class="fas fa-camera"></i>
             <span>Change Photo</span>
           </div>
         </div>
+        
         <div class="user-details">
-          <h1>{{ user?.firstName }} {{ user?.lastName }}</h1>
-          <p class="email">{{ user?.email }}</p>
+          <h1>{{ getUserFullName() }}</h1>
+          <p class="email">{{ getUserEmail() }}</p>
           <span class="member-badge">Member since 2024</span>
         </div>
       </div>
       
-      <input 
-        #fileInput
-        type="file" 
-        accept="image/*" 
-        (change)="onFileSelected($event)"
-        style="display: none;" />
+      <!-- Simple input tag -->
+      <input #fileInput type="file" accept="image/*" (change)="onFileSelected($event)" style="display: none">
     </div>
 
     <div class="profile-content">
@@ -34,15 +34,16 @@
           <a [class.active]="activeTab === 'details'" (click)="setActiveTab('details')">
             <i class="fas fa-user"></i> Profile Details
           </a>
+          
           <a [class.active]="activeTab === 'orders'" (click)="setActiveTab('orders')">
             <i class="fas fa-shopping-bag"></i> My Orders
-            <span class="badge" *ngIf="orders.length > 0">{{ orders.length }}</span>
+            <span class="badge" *ngIf="getOrdersCount() > 0">{{ getOrdersCount() }}</span>
           </a>
+          
           <a [class.active]="activeTab === 'payment'" (click)="setActiveTab('payment')">
             <i class="fas fa-credit-card"></i> Payment Methods
-            <span class="badge" *ngIf="paymentMethods.length > 0">{{ paymentMethods.length }}</span>
+            <span class="badge" *ngIf="getPaymentMethodsCount() > 0">{{ getPaymentMethodsCount() }}</span>
           </a>
-          <!-- Removed Payment History tab since it's not supported -->
         </nav>
       </div>
 
@@ -91,9 +92,8 @@
                     type="text" 
                     formControlName="firstName" 
                     [readonly]="!isEditing"
-                    [class.error]="getFieldError('firstName')"
-                    class="form-control" />
-                  <span class="error-text" *ngIf="getFieldError('firstName')">
+                    class="form-control">
+                  <span class="error-text" *ngIf="hasFieldError('firstName')">
                     {{ getFieldError('firstName') }}
                   </span>
                 </div>
@@ -104,9 +104,8 @@
                     type="text" 
                     formControlName="lastName" 
                     [readonly]="!isEditing"
-                    [class.error]="getFieldError('lastName')"
-                    class="form-control" />
-                  <span class="error-text" *ngIf="getFieldError('lastName')">
+                    class="form-control">
+                  <span class="error-text" *ngIf="hasFieldError('lastName')">
                     {{ getFieldError('lastName') }}
                   </span>
                 </div>
@@ -120,9 +119,8 @@
                     type="email" 
                     formControlName="email" 
                     [readonly]="!isEditing"
-                    [class.error]="getFieldError('email')"
-                    class="form-control" />
-                  <span class="error-text" *ngIf="getFieldError('email')">
+                    class="form-control">
+                  <span class="error-text" *ngIf="hasFieldError('email')">
                     {{ getFieldError('email') }}
                   </span>
                 </div>
@@ -133,9 +131,8 @@
                     type="tel" 
                     formControlName="phone" 
                     [readonly]="!isEditing"
-                    [class.error]="getFieldError('phone')"
-                    class="form-control" />
-                  <span class="error-text" *ngIf="getFieldError('phone')">
+                    class="form-control">
+                  <span class="error-text" *ngIf="hasFieldError('phone')">
                     {{ getFieldError('phone') }}
                   </span>
                 </div>
@@ -148,8 +145,7 @@
                   type="text" 
                   formControlName="username" 
                   readonly
-                  class="form-control"
-                  title="Username cannot be changed" />
+                  class="form-control">
                 <small class="help-text">Username cannot be changed</small>
               </div>
             </div>
@@ -160,11 +156,11 @@
               </button>
               <button 
                 type="submit" 
-                [disabled]="profileForm.invalid || saving"
+                [disabled]="isFormInvalid() || saving"
                 class="btn btn-primary">
                 <i class="fas fa-spinner fa-spin" *ngIf="saving"></i>
                 <i class="fas fa-save" *ngIf="!saving"></i>
-                {{ saving ? 'Saving...' : 'Save Changes' }}
+                {{ getSaveButtonText() }}
               </button>
             </div>
           </form>
@@ -173,7 +169,7 @@
         <!-- Orders Tab -->
         <div *ngIf="activeTab === 'orders' && !loading" class="profile-section">
           <div class="section-header">
-            <h2>My Orders ({{ orders.length }})</h2>
+            <h2>My Orders ({{ getOrdersCount() }})</h2>
             <div class="orders-filter">
               <select [(ngModel)]="orderFilter" (change)="filterOrders()">
                 <option value="all">All Orders</option>
@@ -185,7 +181,7 @@
             </div>
           </div>
           
-          <div class="orders-list" *ngIf="filteredOrders.length > 0">
+          <div class="orders-list" *ngIf="hasFilteredOrders()">
             <div *ngFor="let order of filteredOrders" class="order-card">
               <div class="order-header">
                 <div class="order-info">
@@ -193,7 +189,7 @@
                   <span class="order-date">{{ getOrderDate(order.date) }}</span>
                   <span class="customer-name">{{ order.customerName }}</span>
                 </div>
-                <span class="order-status" [class]="order.status.toLowerCase()">{{ order.status }}</span>
+                <span class="order-status" [ngClass]="getOrderStatusClass(order.status)">{{ order.status }}</span>
               </div>
               
               <div class="order-items">
@@ -202,9 +198,9 @@
                   <div class="item-details">
                     <h4>{{ item.name }}</h4>
                     <p>Quantity: {{ item.quantity }}</p>
-                    <p>Price: ${{ item.price.toFixed(2) }}</p>
+                    <p>Price: ${{ formatPrice(item.price) }}</p>
                   </div>
-                  <span class="item-total">${{ (item.price * item.quantity).toFixed(2) }}</span>
+                  <span class="item-total">${{ formatPrice(item.price * item.quantity) }}</span>
                 </div>
               </div>
               
@@ -212,45 +208,34 @@
                 <div class="shipping-info">
                   <h5>Shipping Address:</h5>
                   <p>{{ order.shippingAddress.address }}</p>
-                  <p>{{ order.shippingAddress.city }}, {{ order.shippingAddress.state }} {{ order.shippingAddress.zipCode }}</p>
+                  <p>{{ getShippingLocation(order.shippingAddress) }}</p>
                   <p>{{ order.shippingAddress.country }}</p>
                 </div>
                 <div class="payment-info">
                   <h5>Payment:</h5>
-                  <p>{{ order.paymentMethod.cardType }} ending in {{ order.paymentMethod.cardLast4 }}</p>
-                  <!-- Removed trackingNumber since it doesn't exist in your Order interface -->
+                  <p>{{ getPaymentMethodDisplay(order.paymentMethod) }}</p>
                 </div>
               </div>
               
               <div class="order-footer">
-                <span class="order-total">Total: ${{ order.total.toFixed(2) }}</span>
+                <span class="order-total">Total: ${{ formatPrice(order.total) }}</span>
                 <div class="order-actions">
                   <button class="btn btn-outline" (click)="viewOrder(order.id)">View Details</button>
                   <button 
-                    *ngIf="order.status === 'Delivered'" 
+                    *ngIf="canReorder(order.status)" 
                     class="btn btn-primary" 
                     (click)="reorder(order.id)">
-                    Reorder
-                  </button>
-                  <button 
-                    *ngIf="order.status !== 'Delivered' && order.status !== 'Cancelled'" 
-                    class="btn btn-primary" 
-                    (click)="reorder(order.id)">
-                    Buy Again
+                    {{ getReorderButtonText(order.status) }}
                   </button>
                 </div>
               </div>
             </div>
           </div>
           
-          <div *ngIf="filteredOrders.length === 0 && !loading" class="empty-state">
+          <div *ngIf="!hasFilteredOrders()" class="empty-state">
             <i class="fas fa-shopping-bag"></i>
             <h3>No orders found</h3>
-            <p *ngIf="orderFilter === 'all'">You haven't placed any orders yet</p>
-            <p *ngIf="orderFilter !== 'all'">No orders match the selected filter: {{ orderFilter }}</p>
-            <p *ngIf="orders.length > 0 && orderFilter !== 'all'" class="filter-help">
-              You have {{ orders.length }} total orders. Try changing the filter above.
-            </p>
+            <p>{{ getEmptyOrdersMessage() }}</p>
             <button class="btn btn-primary" (click)="goToShop()">Start Shopping</button>
           </div>
         </div>
@@ -264,11 +249,11 @@
             </button>
           </div>
           
-          <div class="payment-methods" *ngIf="paymentMethods.length > 0">
-            <div *ngFor="let payment of paymentMethods" class="payment-card" [class.default]="payment.isDefault">
+          <div class="payment-methods" *ngIf="hasPaymentMethods()">
+            <div *ngFor="let payment of paymentMethods" class="payment-card" [ngClass]="getPaymentCardClass(payment.isDefault)">
               <div class="card-info">
                 <div class="card-type">
-                  <i [class]="getCardIcon(payment.type)"></i>
+                  <i [ngClass]="getCardIcon(payment.type)"></i>
                   <span>{{ payment.type.toUpperCase() }}</span>
                   <span *ngIf="payment.isDefault" class="default-badge">Default</span>
                 </div>
@@ -290,15 +275,13 @@
             </div>
           </div>
           
-          <div *ngIf="paymentMethods.length === 0" class="empty-state">
+          <div *ngIf="!hasPaymentMethods()" class="empty-state">
             <i class="fas fa-credit-card"></i>
             <h3>No payment methods</h3>
             <p>Add a payment method to make checkout faster</p>
             <button class="btn btn-primary" (click)="addPaymentMethod()">Add Payment Method</button>
           </div>
         </div>
-
-        <!-- Removed Payment History Tab completely since it's not supported by your OrderService -->
       </div>
     </div>
   </div>
