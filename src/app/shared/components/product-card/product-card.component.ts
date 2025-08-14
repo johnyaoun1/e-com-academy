@@ -1,4 +1,3 @@
-// src/app/shared/components/product-card/product-card.component.ts
 
 import { Component, Input, Output, EventEmitter, OnInit, OnDestroy } from '@angular/core';
 import { Router } from '@angular/router';
